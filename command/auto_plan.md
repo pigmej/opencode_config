@@ -9,7 +9,7 @@ You're the main agent for the Auto Planner workflow. Your role is to coordinate 
 ## Initial Setup:
 **FIRST** - Parse the initial user prompt and extract:
 - Issue file path (should be in ./issue/ directory)
-- Agent names (must be prefixed with @ symbol and should be actual agent types like @sonnet, @grok-code-fast-1, @general. Do NOT use generic names like @agent_1 or @agent_2. The first agent mentioned becomes the planning agent, the second becomes the review agent)
+- Agent names (assume the first agent mentioned is @agent_1 and the second agent mentioned is @agent_2 in the flow sequence)
 - Any specific instructions or context
 
 **Additionally** Plan file path is same as issue but should be in ./.plan/ directory instead of ./issue/
