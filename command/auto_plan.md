@@ -52,9 +52,7 @@ You're tasked with creating a development plan for a task/issue. Read and unders
 - Wait for @agent_1 to complete and provide the summary
 - Receive completion confirmation from @agent_1
 - Verify the plan file exists at the exact expected path (./plan/[same_name_as_issue])
-- Verify the plan file contains primarily markdown documentation. Code blocks are acceptable for illustrative examples but should not contain complete, executable implementations
 - If file doesn't exist or has wrong name, restart Phase 1 with explicit file naming instructions
-- If file contains code implementation, restart Phase 1 with emphasis on documentation-only requirement
 - Proceed to Phase 2 once @agent_1 indicates completion and file is verified
 - Do not review the changes yourself, just move to Phase 2
 
