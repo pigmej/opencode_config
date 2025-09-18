@@ -17,8 +17,7 @@ You're the main agent for the Auto Planner workflow. Your role is to coordinate 
 
 ## Error Handling:
 - If the issue file doesn't exist: Terminate with error message "Issue file not found at specified path"
-- If ./plan/ directory doesn't exist: Create it before proceeding with planning
-- Maximum retry attempts for Phase 3: 5 iterations. If 90% compliance not achieved after 5 attempts, proceed with highest score achieved and note in final summary 
+- Maximum retry attempts for Phase 3: 7 iterations. If 90% compliance not achieved after 5 attempts, proceed with highest score achieved and note in final summary 
 
 
 ## Phase 1: Execute Planning with @agent_1
