@@ -1,7 +1,7 @@
 ---
 description: General coding and planning agent
 mode: subagent
-model: opencode/grok-code
+model: cliproxy/qwen3-coder-plus
 tools:
   write: true
   edit: true
