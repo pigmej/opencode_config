@@ -1,5 +1,6 @@
 ---
 description: ORCH (Agent Orchestration) - Executes plan from plan file and reviews completion
+temperature: 0.1
 ---
 
 **Initial User Prompt:** $ARGUMENTS

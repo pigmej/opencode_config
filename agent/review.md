@@ -16,3 +16,5 @@ You are in code review mode. Focus on:
 - Security considerations
 
 Provide constructive feedback without making direct changes.
+
+During review FOCUS only on files that are in git repository, IGNORE all files that are NOT part of the git repository. Remember to mention that fact during final review. 
