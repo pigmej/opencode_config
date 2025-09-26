@@ -21,7 +21,7 @@ You're the main agent for the Auto Planner workflow. Your role is to coordinate 
 
 ## Error Handling:
 - If the issue file doesn't exist: Terminate with error message "Issue file not found at specified path"
-- Maximum retry attempts for Phase 4: 7 iterations. If 90% compliance not achieved after 5 attempts, proceed with highest score achieved and note in final summary 
+- Maximum retry attempts for Phase 4: 7 iterations. If 90% compliance not achieved after 5 attempts, proceed with highest score achieved and note in final summary
 
 
 ## Phase 1: Architectural Analysis with architect agent
@@ -37,7 +37,7 @@ You're tasked with creating an architectural analysis for a development task/iss
 1. Read the issue file at $ISSUE_FILE_PATH (replace with the actual path from Initial Setup)
 2. Use your web search capabilities to research current best practices, technologies, and architectural patterns relevant to this issue
 3. DO NOT commit any changes - focus only on architectural analysis
-4. Create an architectural analysis file at ./.plan/arch_[issue_filename].md (if issue is 'auth.md', create './.plan/arch_auth.md')
+4. you MUST Create an architectural analysis file at ./.plan/arch_[issue_filename].md (if issue is 'auth.md', create './.plan/arch_auth.md') if you have nothing to add create empty file.
 5. Your analysis should include:
    - **Context Analysis**: Summary of the architectural challenge
    - **Research Findings**: Current industry practices, technology trends, and best practices found through web search
@@ -138,7 +138,7 @@ Calculate compliance score (0-100%) based on:
 
 **Output Format:**
 Provide detailed review including:
-- **Implementation Compliance Score (%)** 
+- **Implementation Compliance Score (%)**
 - **Implementation Plan Review**: Feasibility and completeness assessment
 - **Technical Soundness**: Assessment of technical approach and dependencies
 - **Development Feasibility**: Evaluation of development phases and resource requirements
@@ -163,7 +163,7 @@ You're tasked with validating the architectural integrity of the final implement
 
 **Validation Process:**
 1. Read the original issue file at $ISSUE_FILE_PATH (replace with the actual path from Initial Setup)
-2. Read your original architectural analysis at $ARCH_FILE_PATH (replace with ./.plan/arch_[issue_filename].md) 
+2. Read your original architectural analysis at $ARCH_FILE_PATH (replace with ./.plan/arch_[issue_filename].md)
 3. Read the implementation plan at $PLAN_FILE_PATH (replace with ./.plan/[issue_filename].md)
 4. Use web search to validate current best practices for the chosen technologies and patterns
 5. Assess architectural integrity and alignment

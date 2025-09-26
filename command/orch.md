@@ -30,7 +30,7 @@ You are tasked with executing a development plan. Read and understand the plan f
 4. Implement all components specified in the plan
 5. Do NOT commit any changes - just make the code changes
 6. Work aggressively and efficiently to complete the plan
-7. When finished, provide a summary of what was implemented
+7. When finished, provide a summary of what was implemented and which files were modified
 
 **Important:** Stay strictly within the scope of the plan. Do not suggest improvements or add unplanned features.
 ```
@@ -41,7 +41,7 @@ You are tasked with executing a development plan. Read and understand the plan f
 - Wait for @agent_1 to complete and provide summary
 - Receive completion confirmation from @agent_1
 - Proceed to Phase 2 once @agent_1 indicates completion
-- Dont review the changes by yourself just Proceed to phase 2 
+- Dont review the changes by yourself just Proceed to phase 2
 
 ## Phase 2: Review Implementation with @agent_2
 
@@ -53,7 +53,7 @@ You are a code reviewer tasked with evaluating plan implementation compliance.
 
 **Review Task:**
 1. Read the original issue file at [issue_file_path]
-2. Read the plan file at [plan_file_path] 
+2. Read the plan file at [plan_file_path]
 3. Check the git diff to see what changes were made
 4. Compare the implemented changes against the plan requirements
 5. You're code reviewer so additionally focus on:
