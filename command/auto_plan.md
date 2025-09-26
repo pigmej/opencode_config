@@ -12,12 +12,12 @@ You're the main agent for the Auto Planner workflow. Your role is to coordinate 
 - Agent names (assume the first agent mentioned is @agent_1 and the second agent mentioned is @agent_2 in the flow sequence)
 - Any specific instructions or context
 
-**File Structure:**
-- Issue file: ./issue/[filename].md
-- Architecture analysis: ./.plan/arch_[filename].md
-- Implementation plan: ./.plan/[filename].md
+**File Structure and Variables:**
+- Issue file: ./issue/[filename].md → $ISSUE_FILE_PATH
+- Architecture analysis: ./.plan/arch_[filename].md → $ARCH_FILE_PATH
+- Implementation plan: ./.plan/[filename].md → $PLAN_FILE_PATH
 
-**Example:** ./issue/auth.md → ./.plan/arch_auth.md (architecture) + ./.plan/auth.md (implementation plan)
+**Example:** ./issue/auth.md → $ISSUE_FILE_PATH = "./issue/auth.md", $ARCH_FILE_PATH = "./.plan/arch_auth.md", $PLAN_FILE_PATH = "./.plan/auth.md"
 
 ## Error Handling:
 - If the issue file doesn't exist: Terminate with error message "Issue file not found at specified path"
@@ -99,84 +99,132 @@ You're tasked with creating a detailed implementation plan based on architectura
 - Proceed to Phase 3 once @agent_1 indicates completion and file is verified
 - Do not review the changes yourself, just move to Phase 3
 
-## Phase 3: Comprehensive Plan Review with @agent_2
+## Phase 3a: Implementation Review with @agent_2
 
 **Step 1: Spawn @agent_2**
 Send the following prompt to @agent_2:
 
 ```
-You're an expert plan reviewer tasked with evaluating both architectural analysis and implementation planning done by other agents.
+You're an expert implementation reviewer tasked with evaluating implementation planning feasibility and technical soundness.
 
 **Review Process:**
 1. Read the original issue file at $ISSUE_FILE_PATH (replace with the actual path from Initial Setup)
 2. Read the architectural analysis file at $ARCH_FILE_PATH (replace with ./.plan/arch_[issue_filename].md)
 3. Read the implementation plan file at $PLAN_FILE_PATH (replace with ./.plan/[issue_filename].md)
 4. Verify that all files exist and have proper naming
-5. Assess both architectural soundness and implementation feasibility
+5. Focus primarily on implementation feasibility and technical execution
 
 **Evaluation Criteria:**
 Calculate compliance score (0-100%) based on:
 
-**Architectural Review (40% of score):**
-- Technology choices are appropriate and well-researched
-- Architecture patterns fit the problem domain
-- Scalability and security considerations are adequate
-- Integration patterns are realistic
-- No architectural over-engineering
-
-**Implementation Review (40% of score):**
+**Implementation Review (60% of score):**
 - Implementation plan follows architectural guidelines
 - Plan is detailed enough for development
 - No scope creep beyond issue requirements (unless marked IMPORTANT)
 - Plan allows for future modifications without major rewrites
 - Testing strategy is comprehensive
 
-**Alignment Review (20% of score):**
-- Implementation plan aligns with architectural analysis
-- Both documents address the original issue requirements
-- Consistency between architectural decisions and implementation approach
+**Feasibility Review (40% of score):**
+- Implementation approach is technically sound
+- Dependencies and integration points are realistic
+- Development phases are logically sequenced
+- Resource requirements are reasonable
 
 **Scoring Criteria:**
-- 90-100%: Excellent architecture and implementation plan, fully aligned and feasible
-- 70-89%: Good plan with minor issues, slight deviations or missing components
-- 50-69%: Significant issues in architecture or implementation planning
-- Below 50%: Major failures, unacceptable architecture or implementation approach
+- 90-100%: Excellent implementation plan, technically sound and feasible
+- 70-89%: Good implementation plan with minor issues or missing components
+- 50-69%: Significant implementation issues or feasibility concerns
+- Below 50%: Major implementation failures, plan is not executable
 
 **Output Format:**
 Provide detailed review including:
-- **Overall Compliance Score (%)** 
-- **Architectural Analysis Review**: Strengths and weaknesses
+- **Implementation Compliance Score (%)** 
 - **Implementation Plan Review**: Feasibility and completeness assessment
-- **Alignment Assessment**: How well the plans work together
-- **Specific Issues**: Any problems that need addressing
-- **Recommendations**: Specific improvements needed
+- **Technical Soundness**: Assessment of technical approach and dependencies
+- **Development Feasibility**: Evaluation of development phases and resource requirements
+- **Specific Issues**: Any implementation problems that need addressing
+- **Recommendations**: Specific implementation improvements needed
 - **Pass/Fail Decision**: Pass if 90%+, fail if below 90%
 ```
 
 
-**Step 2: Analyze @agent_2 Review**
-- Review the compliance score and detailed feedback
-- If score is 90% or higher: Proceed to Phase 5 (Final Completion)
-- If score is below 90%: Proceed to Phase 4 (Refinement Loop)
+**Step 2: Receive @agent_2 implementation review**
+- Wait for @agent_2 to complete and provide implementation compliance score
+- Store implementation review feedback for later analysis
+- Proceed to Phase 3b regardless of score
+
+## Phase 3b: Architectural Validation with architect agent
+
+**Step 1: Spawn architect agent**
+Send the following prompt to architect agent:
+
+```
+You're tasked with validating the architectural integrity of the final implementation plan. Use your web search capabilities to ensure the plan maintains architectural best practices.
+
+**Validation Process:**
+1. Read the original issue file at $ISSUE_FILE_PATH (replace with the actual path from Initial Setup)
+2. Read your original architectural analysis at $ARCH_FILE_PATH (replace with ./.plan/arch_[issue_filename].md) 
+3. Read the implementation plan at $PLAN_FILE_PATH (replace with ./.plan/[issue_filename].md)
+4. Use web search to validate current best practices for the chosen technologies and patterns
+5. Assess architectural integrity and alignment
+
+**Evaluation Criteria:**
+Calculate architectural compliance score (0-100%) based on:
+
+**Technology Validation (30% of score):**
+- Implementation choices align with architectural recommendations
+- Technology selections remain current and well-supported (validate via web search)
+- No architectural drift from original analysis
+
+**Pattern Integrity (30% of score):**
+- Architectural patterns are correctly applied in implementation
+- System design maintains intended structure and boundaries
+- Integration patterns follow architectural guidelines
+
+**Quality Attributes (40% of score):**
+- Scalability considerations are preserved
+- Security architecture is maintained
+- Performance implications are addressed
+- Maintainability goals are achievable
+
+**Output Format:**
+- **Architectural Compliance Score (%)**
+- **Technology Assessment**: Current status of chosen technologies
+- **Pattern Analysis**: How well architectural patterns are preserved
+- **Quality Review**: Security, scalability, performance, maintainability
+- **Architectural Drift**: Any deviations from original analysis
+- **Recommendations**: Architectural improvements if needed
+- **Pass/Fail Decision**: Pass if 90%+, fail if below 90%
+```
+
+**Step 2: Receive architect validation**
+- Wait for architect agent to complete validation
+- Receive architectural compliance score and feedback
+
+**Step 3: Analyze Combined Reviews**
+- Calculate overall score: (Implementation Score + Architectural Score) / 2
+- If overall score is 90% or higher: Proceed to Phase 5 (Final Completion)
+- If overall score is below 90%: Proceed to Phase 4 (Refinement Loop)
+- Pass both review feedbacks to refinement phase for targeted fixes
 
 ## Phase 4: Refinement Loop (If Needed)
 
-**If score < 90%:**
-1. Extract specific issues from @agent_2 review and categorize them:
-   - **Architectural Issues**: Problems with technology choices, architecture patterns, scalability, etc.
-   - **Implementation Issues**: Problems with implementation planning, component design, etc.
-   - **Alignment Issues**: Inconsistencies between architecture and implementation
+**If overall score < 90%:**
+1. Extract specific issues from both @agent_2 and architect reviews and categorize them:
+   - **Architectural Issues**: Problems identified by architect agent (technology drift, pattern violations, quality concerns)
+   - **Implementation Issues**: Problems identified by @agent_2 (feasibility, technical soundness, development planning)
+   - **Cross-cutting Issues**: Issues that affect both architecture and implementation
 
 2. **For Architectural Issues**: Spawn architect agent with this prompt:
 ```
 You need to refine the architectural analysis based on review feedback. Read all existing documents and fix specific architectural issues.
 
 **Instructions:**
-1. Read the issue file at $ISSUE_FILE_PATH
-2. Read the current architectural analysis at $ARCH_FILE_PATH
-3. Read the implementation plan at $PLAN_FILE_PATH
+1. Read the issue file at $ISSUE_FILE_PATH (replace with the actual path from Initial Setup)
+2. Read the current architectural analysis at $ARCH_FILE_PATH (replace with ./.plan/arch_[issue_filename].md)
+3. Read the implementation plan at $PLAN_FILE_PATH (replace with ./.plan/[issue_filename].md)
 4. Review the feedback and fix these specific architectural issues:
-   $ARCHITECTURAL_ISSUES (replace with architectural issues from @agent_2 review)
+   $ARCHITECTURAL_ISSUES (replace with architectural issues from architect agent review)
 5. Use web search to research better solutions if needed
 6. Update the architectural analysis file at ./.plan/arch_[issue_filename].md
 7. Make ONLY the fixes listed above - no other changes
@@ -189,9 +237,9 @@ You need to refine the architectural analysis based on review feedback. Read all
 You need to refine the implementation plan based on review feedback. Read all existing documents and fix specific implementation issues.
 
 **Instructions:**
-1. Read the issue file at $ISSUE_FILE_PATH
-2. Read the architectural analysis at $ARCH_FILE_PATH
-3. Read the current implementation plan at $PLAN_FILE_PATH
+1. Read the issue file at $ISSUE_FILE_PATH (replace with the actual path from Initial Setup)
+2. Read the architectural analysis at $ARCH_FILE_PATH (replace with ./.plan/arch_[issue_filename].md)
+3. Read the current implementation plan at $PLAN_FILE_PATH (replace with ./.plan/[issue_filename].md)
 4. Fix these specific implementation issues:
    $IMPLEMENTATION_ISSUES (replace with implementation issues from @agent_2 review)
 5. Make ONLY the fixes listed above - no other changes
@@ -200,8 +248,9 @@ You need to refine the implementation plan based on review feedback. Read all ex
 8. Provide a summary of specific fixes made
 ```
 
-4. After fixes are made, spawn @agent_2 again to review the updated plans
-5. Repeat until 90%+ compliance is achieved or maximum iterations reached
+4. After fixes are made, spawn both @agent_2 and architect agent again to review the updated plans
+5. Calculate new overall score from both reviews
+6. Repeat until 90%+ overall compliance is achieved or maximum iterations reached
 
 
 ## Phase 5: Final Completion
@@ -213,13 +262,13 @@ You need to refine the implementation plan based on review feedback. Read all ex
      - Implementation plan: ./.plan/[issue_filename].md
    - **Process Summary:**
      - Number of iterations required
-     - Final compliance score
+     - Final overall compliance score (average of implementation + architectural)
      - Key architectural decisions made
      - Implementation approach selected
    - **Quality Metrics:**
-     - Architectural soundness score
-     - Implementation feasibility score
-     - Overall alignment score
+     - Implementation feasibility score (from @agent_2)
+     - Architectural integrity score (from architect agent)
+     - Overall combined score
    - **Next Steps:**
      - Any remaining minor considerations
      - Recommended development sequence
@@ -229,5 +278,6 @@ You need to refine the implementation plan based on review feedback. Read all ex
 **Workflow Benefits:**
 - Research-backed architectural decisions
 - Comprehensive implementation planning
-- Multi-layered validation process
+- Dual-validation process (implementation + architectural integrity)
 - Separation of architectural and implementation concerns
+- Real-time validation against current industry best practices
