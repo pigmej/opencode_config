@@ -87,18 +87,18 @@ Create a decomposition plan in JSON format with the following structure:
 
 ## Phase 2: Issue File Generation
 
-### Step 1: Find next available issue ID
-1. Find the file with the highest number in `./.issue` directory
-2. Start with that number + 10 for the first issue
-3. Increment by 10 for each subsequent issue
+### Step 1: Generate phase-based issue IDs
+1. Group issues by their `implementation_phase` value
+2. For each phase, assign issue IDs as: `{phase}_{10, 20, 30, ...}`
+3. Example: Phase 1 issues → `1_10`, `1_20`, `1_30`; Phase 2 issues → `2_10`, `2_20`
 
 ### Step 2: Create issue files
 
 For each issue in the decomposition plan:
 
-1. Generate issue ID: `{issue-id}` (increment by 10 for each)
+1. Generate issue ID: `{phase}_{sequence}` where sequence = 10 * (index_in_phase + 1)
 2. Use the title from decomposition plan: `{issue-title}`
-3. Create file: `./.issue/{issue-id}-{issue-title}.md`
+3. Create file: `./.issue/{phase}_{sequence}-{issue-title}.md`
 
 **Issue File Template:**
 
