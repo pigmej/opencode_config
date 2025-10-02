@@ -58,8 +58,80 @@ You're tasked with creating an architectural analysis for a development task/iss
 - Receive completion confirmation from architect agent
 - Verify the architectural analysis file exists at ./.plan/arch_[issue_filename].md
 - If file doesn't exist or has wrong name, restart Phase 1 with explicit file naming instructions
-- Proceed to Phase 2 once architect indicates completion and file is verified
-- Do not review the changes yourself, just move to Phase 2
+- Proceed to Phase 1.5 once architect indicates completion and file is verified
+- Do not review the changes yourself, just move to Phase 1.5
+
+## Phase 1.5: Integration Context Analysis
+
+**Step 1: Check for dependent/prior issues**
+
+Extract from the issue file:
+- **Parent Feature ID** (if specified)
+- **Dependencies** (list of dependent issue IDs)
+- **Implementation Phase** (e.g., Phase 1, Phase 2)
+- Extract current issue ID from filename (e.g., `1_20-auth-api.md` → issue_id = `1_20`, phase = `1`)
+
+**Step 2: Identify prior issues in same feature**
+
+If issue is part of a feature (has parent feature ID or phase > 1):
+1. List all issues in ./.issue/ directory with same feature ID
+2. Identify all prior issues: issues in earlier phases OR issues in same phase with lower sequence number
+3. Example: If current issue is `1_30`, prior issues are `1_10` and `1_20`
+4. For each prior issue, check if plan exists at ./.plan/{prior-issue-id}-*.md
+
+**Step 3: Spawn architect agent for integration analysis (if prior issues exist)**
+
+If prior issue plans exist, send this prompt to architect agent:
+
+```
+You're analyzing integration requirements for an issue that builds upon prior work in the same feature.
+
+**Instructions:**
+1. Read the current issue at $ISSUE_FILE_PATH (replace with the actual path from Initial Setup)
+2. Read the current architectural analysis at $ARCH_FILE_PATH (replace with ./.plan/arch_[issue_filename].md)
+3. Read ALL prior/dependent issue plans in this feature:
+   $PRIOR_ISSUE_PLANS (replace with comma-separated list of ./.plan files from prior issues)
+4. Analyze integration points between this issue and prior work
+5. Update the architectural analysis at $ARCH_FILE_PATH to add a new section:
+
+**Integration Architecture Section to Add:**
+---
+## Integration with Prior Issues
+
+**Dependent Issues:**
+- [List all prior issue IDs and their purpose]
+
+**Integration Points:**
+- [Specific APIs, components, data models, or services from prior issues that this issue will use]
+- [Be explicit about what should be integrated vs. what should be built new]
+
+**Data Flow:**
+- [How data/state flows from prior issues into this issue]
+- [What data structures or interfaces are shared]
+
+**Anti-Patterns to Avoid:**
+- DO NOT hardcode data that prior issues provide through proper APIs/services
+- DO NOT duplicate functionality already implemented in prior issues
+- DO NOT create temporary implementations if prior issues provide the foundation
+- [Any other specific integration anti-patterns for this context]
+
+**Integration Testing:**
+- [How to verify proper integration with prior work]
+- [What integration points need testing]
+
+**CRITICAL INTEGRATION REQUIREMENTS:**
+[Mark any must-integrate items as IMPORTANT]
+---
+
+6. Be specific and actionable - reference exact component/API names from prior plans
+7. Call out explicitly what should NOT be hardcoded or duplicated
+8. Ensure this integration guidance is clear for implementation planning
+```
+
+**Step 4: Receive integration analysis**
+- Wait for architect agent to complete integration analysis (if applicable)
+- Verify the architectural analysis file has been updated with integration section (if applicable)
+- Proceed to Phase 2
 
 ## Phase 2: Detailed Implementation Planning with @agent_1
 
@@ -73,22 +145,30 @@ You're tasked with creating a detailed implementation plan based on architectura
 **Instructions:**
 1. Read the issue file at $ISSUE_FILE_PATH (replace with the actual path from Initial Setup)
 2. Read the architectural analysis at $ARCH_FILE_PATH (replace with ./.plan/arch_[issue_filename].md)
-3. Follow both the issue requirements and architectural guidelines from the analysis
-4. DO NOT commit any changes - focus on implementation planning
-5. Create implementation plan at ./.plan/[issue_filename].md (same filename as issue, different directory)
-6. Your implementation plan should build upon the architectural foundation and include:
+3. **CRITICAL**: If the architectural analysis includes "Integration with Prior Issues" section, read ALL referenced prior issue plans to understand what already exists
+4. Follow both the issue requirements and architectural guidelines from the analysis
+5. DO NOT commit any changes - focus on implementation planning
+6. Create implementation plan at ./.plan/[issue_filename].md (same filename as issue, different directory)
+7. Your implementation plan should build upon the architectural foundation and include:
    - **Implementation Overview**: How to implement following the architectural guidelines
+   - **Integration Strategy** (if applicable):
+     * Review the "Integration with Prior Issues" section from architectural analysis
+     * Identify what components/APIs/data from prior issues will be used (NO hardcoding!)
+     * Specify exactly which prior implementations to integrate with
+     * Document how to extend vs. build new functionality
+     * List integration testing requirements
    - **Component Details**: Specific modules/components to create or modify (based on architecture)
    - **Data Structures**: Detailed data models and their relationships
    - **API Design**: Interfaces and contracts (following architectural patterns)
    - **User Interaction Flow**: Step-by-step user experience (if applicable)
-   - **Testing Strategy**: Unit, integration, and system testing approach
+   - **Testing Strategy**: Unit, integration, and system testing approach (include integration testing with prior issues if applicable)
    - **Development Phases**: Logical sequence of implementation steps
    - **Dependencies**: Required libraries, frameworks, and external services
-7. Ensure the plan aligns with the architectural decisions marked as IMPORTANT
-8. Include code snippets ONLY for illustration (API examples, interfaces, pseudo-code)
-9. DO NOT write executable implementation code
-10. You MUST NOT create any files other than the implementation plan file
+8. Ensure the plan aligns with the architectural decisions marked as IMPORTANT
+9. **CRITICAL**: If prior issues exist, ensure plan INTEGRATES with them rather than hardcoding or duplicating functionality
+10. Include code snippets ONLY for illustration (API examples, interfaces, pseudo-code)
+11. DO NOT write executable implementation code
+12. You MUST NOT create any files other than the implementation plan file
 ```
 
 **Step 2: Receive @agent_1 implementation plan**
@@ -117,14 +197,21 @@ You're an expert implementation reviewer tasked with evaluating implementation p
 **Evaluation Criteria:**
 Calculate compliance score (0-100%) based on:
 
-**Implementation Review (60% of score):**
+**Implementation Review (50% of score):**
 - Implementation plan follows architectural guidelines
 - Plan is detailed enough for development
 - No scope creep beyond issue requirements (unless marked IMPORTANT)
 - Plan allows for future modifications without major rewrites
 - Testing strategy is comprehensive
 
-**Feasibility Review (40% of score):**
+**Integration Review (30% of score):**
+- If issue has dependencies/prior issues, verify the plan properly integrates with prior work
+- NO hardcoded data when prior issues provide proper APIs/services/components
+- NO duplication of functionality already implemented in prior issues
+- Clear specification of which prior components/APIs to use
+- Integration testing strategy covers connections to prior work
+
+**Feasibility Review (20% of score):**
 - Implementation approach is technically sound
 - Dependencies and integration points are realistic
 - Development phases are logically sequenced
@@ -140,6 +227,10 @@ Calculate compliance score (0-100%) based on:
 Provide detailed review including:
 - **Implementation Compliance Score (%)**
 - **Implementation Plan Review**: Feasibility and completeness assessment
+- **Integration Review**: Assessment of how well the plan integrates with prior issues (if applicable)
+  * Are prior components/APIs properly used instead of hardcoded?
+  * Is functionality reused instead of duplicated?
+  * Are integration points clearly specified?
 - **Technical Soundness**: Assessment of technical approach and dependencies
 - **Development Feasibility**: Evaluation of development phases and resource requirements
 - **Specific Issues**: Any implementation problems that need addressing

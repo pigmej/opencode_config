@@ -130,6 +130,20 @@ This issue is part of a larger feature. Please review the feature architecture b
 ## Dependencies
 {List of dependent issues, if any}
 
+## Integration Requirements
+{If this issue has dependencies or is in phase > 1, specify:}
+
+**Prior Issues This Builds Upon:**
+{List prior issue IDs in this feature that must be completed first, e.g., 1_10, 1_20}
+
+**Expected Integrations:**
+{What components, APIs, or data from prior issues should be used/extended}
+
+**Integration Points:**
+{Specific technical integration points - APIs, data models, services to integrate with}
+
+**CRITICAL:** Do NOT hardcode data, duplicate functionality, or create temporary implementations if prior issues provide the proper foundation. Always review prior issue plans at `./.plan/{prior-issue-id}-*.md` before implementation planning.
+
 ## Architectural Notes
 {architectural_notes from decomposition}
 
@@ -138,9 +152,11 @@ This issue is part of a larger feature. Please review the feature architecture b
 ## Implementation Guidance
 When implementing this issue:
 1. Review the parent feature architecture first
-2. Ensure architectural consistency with other issues in this feature
-3. Follow the technology stack and patterns defined in the feature architecture
-4. Consider the dependencies and implementation phase
+2. If this issue has dependencies, review ALL prior issue plans at `./.plan/{prior-issue-id}-*.md`
+3. Ensure architectural consistency with other issues in this feature
+4. Follow the technology stack and patterns defined in the feature architecture
+5. Properly integrate with prior work - avoid hardcoding or duplicating existing functionality
+6. Consider the dependencies and implementation phase
 ```
 
 ### Step 3: Create all issue files
