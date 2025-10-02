@@ -1,18 +1,18 @@
 # Feature Workflow Documentation
 
-This document explains the feature decomposition workflow that breaks down complex features into implementable issues.
+This document explains the feature decomposition workflow that breaks down complex features into implementable tasks.
 
 ## Overview
 
 The feature workflow consists of three main stages:
 
 ```
-FEATURE → ARCHITECTURE → ISSUES → PLANS
+FEATURE → ARCHITECTURE → TASKS → PLANS
 ```
 
 1. **Feature Creation** (`/auto_feature`) - Creates feature specification and architecture
-2. **Feature Decomposition** (`/feature_decompose`) - Breaks feature into implementable issues
-3. **Issue Planning** (`/auto_plan`) - Creates detailed plans for each issue
+2. **Feature Decomposition** (`/feature_decompose`) - Breaks feature into implementable tasks
+3. **Task Planning** (`/auto_plan`) - Creates detailed plans for each task
 
 ## Directory Structure
 
@@ -22,12 +22,12 @@ FEATURE → ARCHITECTURE → ISSUES → PLANS
   ├── arch_{id}.md                 # Feature-level architecture
   └── {id}-decomposition.md        # Decomposition summary
 
-.issue/
-  └── {id}-{title}.md              # Individual issues (reference parent feature)
+.task/
+  └── {id}-{title}.md              # Individual tasks (reference parent feature)
 
 .plan/
-  ├── arch_{issue-id}.md           # Issue-specific architecture
-  └── {issue-id}.md                # Issue implementation plan
+  ├── arch_{task-id}.md            # Task-specific architecture
+  └── {task-id}.md                 # Task implementation plan
 ```
 
 ## Workflow Steps
@@ -63,7 +63,7 @@ Next Steps:
 2. Run: /feature_decompose ./.feature/100-user-authentication-system.md
 ```
 
-### Step 2: Decompose Feature into Issues
+### Step 2: Decompose Feature into Tasks
 
 ```bash
 /feature_decompose ./.feature/100-user-authentication-system.md
@@ -71,9 +71,9 @@ Next Steps:
 
 **What happens:**
 1. Architect agent analyzes the feature and architecture
-2. Creates decomposition plan with logical issue breakdown
-3. Generates multiple issue files in `.issue/` directory
-4. Each issue includes:
+2. Creates decomposition plan with logical task breakdown
+3. Generates multiple task files in `.task/` directory
+4. Each task includes:
    - Reference to parent feature
    - Link to feature architecture
    - Specific requirements
@@ -84,7 +84,7 @@ Next Steps:
 ```
 ✓ Feature Decomposed Successfully
 
-Issues Created (4 total):
+Tasks Created (4 total):
   • 110: jwt-token-service
   • 120: oauth2-integration
   • 130: user-session-management
@@ -93,22 +93,22 @@ Issues Created (4 total):
 Summary: ./.feature/100-decomposition.md
 ```
 
-### Step 3: Plan Each Issue
+### Step 3: Plan Each Task
 
 ```bash
-/auto_plan ./.issue/110-jwt-token-service.md @architect @sonnet
+/auto_plan ./.task/110-jwt-token-service.md @architect @sonnet
 ```
 
 **What happens:**
-1. Creates issue-specific architecture (`.plan/arch_110.md`)
+1. Creates task-specific architecture (`.plan/arch_110.md`)
 2. Creates detailed implementation plan (`.plan/110.md`)
 3. Both reference and align with parent feature architecture
 
-**Repeat for each issue:**
+**Repeat for each task:**
 ```bash
-/auto_plan ./.issue/120-oauth2-integration.md @architect @sonnet
-/auto_plan ./.issue/130-user-session-management.md @architect @sonnet
-/auto_plan ./.issue/140-authentication-api-endpoints.md @architect @sonnet
+/auto_plan ./.task/120-oauth2-integration.md @architect @sonnet
+/auto_plan ./.task/130-user-session-management.md @architect @sonnet
+/auto_plan ./.task/140-authentication-api-endpoints.md @architect @sonnet
 ```
 
 ### Step 4: Implement
@@ -124,8 +124,8 @@ Follow the implementation order specified in `.feature/{id}-decomposition.md`.
 - Ensures consistency across all implementations
 
 ### 2. Logical Decomposition
-- Issues follow component boundaries
-- Each issue is independently deliverable
+- Tasks follow component boundaries
+- Each task is independently deliverable
 - Dependencies are tracked explicitly
 - Implementation phases guide execution order
 
@@ -133,13 +133,13 @@ Follow the implementation order specified in `.feature/{id}-decomposition.md`.
 ```
 FEATURE (high-level architecture)
   ↓
-ISSUES (implementation chunks, aware of feature arch)
+TASKS (implementation chunks, aware of feature arch)
   ↓
 PLANS (detailed implementation, aligned with feature arch)
 ```
 
 ### 4. Incremental Delivery
-- Issues can be implemented and tested independently
+- Tasks can be implemented and tested independently
 - Follow implementation phases for logical ordering
 - Dependencies ensure proper sequencing
 
@@ -150,12 +150,12 @@ PLANS (detailed implementation, aligned with feature arch)
     ↓ (parent)
 .feature/arch_100.md ←──────────┐
     ↓ (guides)                  │
-    ├─ .issue/110-jwt.md ───────┤
+    ├─ .task/110-jwt.md ────────┤
     │    ↓ (detailed)           │ (references)
     │    ├─ .plan/arch_110.md ──┤
     │    └─ .plan/110.md ────────┤
     │                            │
-    ├─ .issue/120-oauth.md ──────┤
+    ├─ .task/120-oauth.md ───────┤
     │    ↓ (detailed)           │
     │    ├─ .plan/arch_120.md ──┤
     │    └─ .plan/120.md ────────┘
@@ -171,14 +171,14 @@ PLANS (detailed implementation, aligned with feature arch)
 - Does NOT automatically decompose
 
 ### `/feature_decompose [feature-file-path]`
-- Decomposes feature into implementable issues
+- Decomposes feature into implementable tasks
 - Input: Path to feature file (e.g., `./.feature/100-user-auth.md`)
-- Output: Multiple issue files + decomposition summary
+- Output: Multiple task files + decomposition summary
 - Does NOT automatically create plans
 
-### `/auto_plan [issue-file-path] @architect @sonnet`
-- Creates detailed implementation plan for an issue
-- Input: Path to issue file
+### `/auto_plan [task-file-path] @architect @sonnet`
+- Creates detailed implementation plan for a task
+- Input: Path to task file
 - Output: Architecture + implementation plan
 - References parent feature architecture
 
@@ -190,22 +190,22 @@ PLANS (detailed implementation, aligned with feature arch)
 - New major system capabilities
 - Features that need coordinated architecture
 
-### When to Use Direct Issues
+### When to Use Direct Tasks
 - Small, isolated changes
 - Bug fixes
 - Simple enhancements
 - Single-component modifications
 
 ### Decomposition Guidelines
-- Aim for 2-8 issues per feature
-- Each issue should be completable in reasonable time
+- Aim for 2-8 tasks per feature
+- Each task should be completable in reasonable time
 - Follow natural component boundaries
 - Consider dependencies and order
 
 ### Architecture Consistency
-- Always review feature architecture before implementing issues
-- Ensure issue plans align with feature architecture
-- Use consistent technology stack across issues
+- Always review feature architecture before implementing tasks
+- Ensure task plans align with feature architecture
+- Use consistent technology stack across tasks
 - Maintain architectural patterns throughout
 
 ## Example: Full Workflow
@@ -220,16 +220,16 @@ PLANS (detailed implementation, aligned with feature arch)
 /feature_decompose ./.feature/200-notification-system.md
 
 # Output:
-# - .issue/210-websocket-server.md
-# - .issue/220-email-service.md
-# - .issue/230-user-preferences.md
-# - .issue/240-notification-api.md
+# - .task/210-websocket-server.md
+# - .task/220-email-service.md
+# - .task/230-user-preferences.md
+# - .task/240-notification-api.md
 
-# 3. Plan each issue
-/auto_plan ./.issue/210-websocket-server.md @architect @sonnet
-/auto_plan ./.issue/220-email-service.md @architect @sonnet
-/auto_plan ./.issue/230-user-preferences.md @architect @sonnet
-/auto_plan ./.issue/240-notification-api.md @architect @sonnet
+# 3. Plan each task
+/auto_plan ./.task/210-websocket-server.md @architect @sonnet
+/auto_plan ./.task/220-email-service.md @architect @sonnet
+/auto_plan ./.task/230-user-preferences.md @architect @sonnet
+/auto_plan ./.task/240-notification-api.md @architect @sonnet
 
 # 4. Implement in order (check .feature/200-decomposition.md for sequence)
 ```
@@ -244,13 +244,13 @@ PLANS (detailed implementation, aligned with feature arch)
 
 ## Troubleshooting
 
-**Too many issues generated (>10)?**
+**Too many tasks generated (>10)?**
 - Feature is too large, break into multiple features
 
-**Too few issues (1)?**
-- Feature is too simple, use `/auto_issue` instead
+**Too few tasks (1)?**
+- Feature is too simple, use `/auto_task` instead
 
-**Issues have circular dependencies?**
+**Tasks have circular dependencies?**
 - Review feature architecture, may need restructuring
 
 **Architecture doesn't match needs?**
