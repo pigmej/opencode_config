@@ -51,6 +51,7 @@ You're tasked with creating an architectural analysis for a development task. Re
 6. Mark any critical architectural decisions as IMPORTANT for other agents
 7. Focus on WHY architectural choices are made, not detailed HOW implementation
 8. You MUST NOT write implementation code - only architectural guidance and analysis
+9. If the task file contains existing feature architecture or architectural decisions, you MUST incorporate and align with those architectural choices in your analysis. That could be links to existing architecture files (in .features directory for example) or architectural decisions.
 ```
 
 **Step 2: Receive architect analysis**
@@ -250,14 +251,13 @@ Provide detailed review including:
 Send the following prompt to architect agent:
 
 ```
-You're tasked with validating the architectural integrity of the final implementation plan. Use your web search capabilities to ensure the plan maintains architectural best practices.
+You're tasked with validating the architectural integrity of the final implementation plan.
 
 **Validation Process:**
 1. Read the original task file at $TASK_FILE_PATH (replace with the actual path from Initial Setup)
 2. Read your original architectural analysis at $ARCH_FILE_PATH (replace with ./.plan/arch_[task_filename].md)
 3. Read the implementation plan at $PLAN_FILE_PATH (replace with ./.plan/[task_filename].md)
-4. Use web search to validate current best practices for the chosen technologies and patterns
-5. Assess architectural integrity and alignment
+4. Assess architectural integrity and alignment
 
 **Evaluation Criteria:**
 Calculate architectural compliance score (0-100%) based on:
