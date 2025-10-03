@@ -89,23 +89,23 @@ Create a decomposition plan in JSON format with the following structure:
 
 ### Step 1: Generate phase-based task IDs
 1. Group tasks by their `implementation_phase` value
-2. For each phase, assign task IDs as: `{phase}_{10, 20, 30, ...}`
-3. Example: Phase 1 tasks → `1_10`, `1_20`, `1_30`; Phase 2 tasks → `2_10`, `2_20`
+2. For each phase, assign task IDs as: `{feature_id}_{phase}_{10, 20, 30, ...}`
+3. Example: Feature 100, Phase 1 tasks → `100_1_10`, `100_1_20`, `100_1_30`; Phase 2 tasks → `100_2_10`, `100_2_20`
 
 ### Step 2: Create task files
 
 For each task in the decomposition plan:
 
-1. Generate task ID: `{phase}_{sequence}` where sequence = 10 * (index_in_phase + 1)
+1. Generate task ID: `{feature_id}_{phase}_{sequence}` where sequence = 10 * (index_in_phase + 1)
 2. Use the title from decomposition plan: `{task-title}`
-3. Create file: `./.task/{phase}_{sequence}-{task-title}.md`
+3. Create file: `./.task/{feature_id}_{phase}_{sequence}-{task-title}.md`
 
 **Task File Template:**
 
 ```markdown
 # Task: {Task Title}
 
-**Task ID:** {task-id}
+**Task ID:** {feature_id}_{phase}_{sequence}
 **Parent Feature:** {feature-id} - See `./.feature/{feature-file-name}.md`
 **Feature Architecture:** `./.feature/arch_{feature-id}.md`
 **Created:** {current-date}
@@ -180,8 +180,8 @@ Create a summary file at `./.feature/{feature-id}-decomposition.md`:
 ## Tasks Created
 
 {For each task:}
-### {task-id}: {task-title}
-- **File:** `./.task/{task-id}-{task-title}.md`
+### {feature_id}_{phase}_{sequence}: {task-title}
+- **File:** `./.task/{feature_id}_{phase}_{sequence}-{task-title}.md`
 - **Priority:** {priority}
 - **Phase:** {phase}
 - **Dependencies:** {dependencies}
@@ -199,7 +199,7 @@ Create a summary file at `./.feature/{feature-id}-decomposition.md`:
 
 1. Review all generated tasks
 2. Run auto_plan on each task to create detailed implementation plans:
-   - `/auto_plan ./.task/{task-id}-{task-title}.md @architect @sonnet`
+   - `/auto_plan ./.task/{feature_id}_{phase}_{sequence}-{task-title}.md @architect @sonnet`
 3. Follow the implementation order specified above
 4. Ensure each task maintains the feature architecture
 
@@ -221,15 +221,15 @@ Architecture: ./.feature/arch_{feature-id}.md
 
 Tasks Created ({count} total):
 {For each task:}
-  • {task-id}: {task-title}
-    File: ./.task/{task-id}-{task-title}.md
+  • {feature_id}_{phase}_{sequence}: {task-title}
+    File: ./.task/{feature_id}_{phase}_{sequence}-{task-title}.md
     Priority: {priority} | Phase: {phase}
 
 Summary: ./.feature/{feature-id}-decomposition.md
 
 Next Steps:
 1. Review all generated tasks
-2. Plan each task with: /auto_plan ./.task/{task-id}-{task-title}.md @architect @sonnet
+2. Plan each task with: /auto_plan ./.task/{feature_id}_{phase}_{sequence}-{task-title}.md @architect @sonnet
 3. Follow implementation phases as specified
 
 Implementation Order:
