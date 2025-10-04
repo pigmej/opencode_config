@@ -29,7 +29,13 @@ You're tasked with analyzing a feature and breaking it down into implementable t
 **Instructions:**
 1. Read the feature file at $FEATURE_FILE_PATH (replace with actual path)
 2. Read the feature architecture at $FEATURE_ARCH_PATH (replace with actual path)
-3. Use your web search capabilities to research:
+   (This contains essential decisions. If you need research details, read arch_{feature-id}_research.md)
+3. IMPORTANT: The feature architecture already contains research findings.
+   DO NOT re-research the same topics. Only search for:
+   - Decomposition strategies specific to this feature type
+   - Dependency management patterns (if complex)
+   Skip general technology research.
+4. Use your web search capabilities to research:
    - Best practices for decomposing this type of feature
    - Logical boundaries and separation of concerns
    - Dependency management between components
