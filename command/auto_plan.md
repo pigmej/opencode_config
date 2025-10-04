@@ -24,6 +24,42 @@ You're the main agent for the Auto Planner workflow. Your role is to coordinate 
 - Maximum retry attempts for Phase 4: 7 iterations. If 90% compliance not achieved after 5 attempts, proceed with highest score achieved and note in final summary
 
 
+## Phase 0.5: Extract Essential Context
+
+**Step 1: Read and summarize task context**
+1. Read task file at $TASK_FILE_PATH
+2. Extract:
+   - Task ID and title
+   - Parent feature ID (if exists)
+   - Key requirements (list)
+   - Expected outcome
+   - Dependencies
+3. Store as $TASK_CONTEXT (max 300 tokens)
+
+**Step 2: Read and summarize feature architecture (if exists)**
+If task references parent feature architecture:
+1. Read feature architecture file (arch_{feature-id}.md - essential decisions only)
+   NOTE: Do NOT read arch_{feature-id}_research.md unless specific research needed
+2. Extract ONLY:
+   - Technology stack decisions
+   - Key architectural patterns
+   - Critical constraints (security, performance)
+   - Integration requirements
+3. Store as $FEATURE_ARCH_SUMMARY (max 400 tokens)
+4. Store full file path as $FEATURE_ARCH_PATH for reference
+
+**Step 3: Prepare inline context**
+Combine into $INLINE_CONTEXT:
+```
+=== TASK CONTEXT ===
+{$TASK_CONTEXT}
+
+=== FEATURE ARCHITECTURE (from {$FEATURE_ARCH_PATH}) ===
+{$FEATURE_ARCH_SUMMARY}
+
+Full details available at: {$FEATURE_ARCH_PATH}
+```
+
 ## Phase 1: Architectural Analysis with architect agent
 
 **Step 1: Spawn architect agent**
@@ -34,9 +70,25 @@ Send the following prompt to architect agent:
 You're tasked with creating an architectural analysis for a development task. Research and analyze the architectural requirements, then create a comprehensive architectural analysis document.
 
 **Instructions:**
-1. Read the task file at $TASK_FILE_PATH (replace with the actual path from Initial Setup)
-2. Use your web search capabilities to research current best practices, technologies, and architectural patterns relevant to this task
-3. DO NOT commit any changes - focus only on architectural analysis
+
+=== CONTEXT PROVIDED INLINE ===
+{$INLINE_CONTEXT}
+=== END CONTEXT ===
+
+The above context is extracted from the task and feature architecture files.
+
+1. OPTIONAL: If you need additional details beyond the summary, read:
+   - Task file: $TASK_FILE_PATH
+   - Feature architecture: $FEATURE_ARCH_PATH (if referenced)
+2. Check if the task file references a parent feature architecture.
+   If YES: REUSE its technology decisions (provided in context above).
+   DO NOT re-research technologies already decided at feature level.
+3. ONLY research:
+   - Task-specific implementation patterns not covered by feature arch
+   - Integration approaches if task has dependencies
+   Skip broad architectural research.
+4. Use your web search capabilities to research current best practices, technologies, and architectural patterns relevant to this task
+5. DO NOT commit any changes - focus only on architectural analysis
 4. you MUST Create an architectural analysis file at ./.plan/arch_[task_filename].md (if task is 'auth.md', create './.plan/arch_auth.md') if you have nothing to add create empty file.
 5. Your analysis should include:
    - **Context Analysis**: Summary of the architectural challenge
@@ -80,7 +132,19 @@ If task is part of a feature (has parent feature ID or phase > 1):
 3. Example: If current task is `1_30`, prior tasks are `1_10` and `1_20`
 4. For each prior task, check if plan exists at ./.plan/{prior-task-id}-*.md
 
+**Step 2.5: Evaluate integration analysis need**
+
+Determine if integration analysis is needed:
+1. Count prior task plans found in Step 2
+2. If count = 0: Log "No prior tasks found, skipping integration analysis" and proceed to Phase 2
+3. If count > 0: Log "Found {count} prior tasks, proceeding with integration analysis" and continue to Step 3
+
 **Step 3: Spawn architect agent for integration analysis (if prior tasks exist)**
+
+CONDITIONAL EXECUTION:
+- IF prior task plans exist (from Step 2): Execute integration analysis
+- IF task is Phase 1 AND has no dependencies: SKIP to Phase 2
+- OTHERWISE: SKIP to Phase 2
 
 If prior task plans exist, send this prompt to architect agent:
 
@@ -88,10 +152,15 @@ If prior task plans exist, send this prompt to architect agent:
 You're analyzing integration requirements for a task that builds upon prior work in the same feature.
 
 **Instructions:**
-1. Read the current task at $TASK_FILE_PATH (replace with the actual path from Initial Setup)
-2. Read the current architectural analysis at $ARCH_FILE_PATH (replace with ./.plan/arch_[task_filename].md)
-3. Read ALL prior/dependent task plans in this feature:
+
+=== CURRENT TASK CONTEXT ===
+{$INLINE_CONTEXT}
+=== END CONTEXT ===
+
+1. Read the current architectural analysis at $ARCH_FILE_PATH (replace with ./.plan/arch_[task_filename].md)
+2. Read ALL prior/dependent task plans in this feature:
    $PRIOR_TASK_PLANS (replace with comma-separated list of ./.plan files from prior tasks)
+3. Task context is provided above. Only read $TASK_FILE_PATH if you need additional details.
 4. Analyze integration points between this task and prior work
 5. Update the architectural analysis at $ARCH_FILE_PATH to add a new section:
 
@@ -144,10 +213,17 @@ Send the following prompt to @agent_1:
 You're tasked with creating a detailed implementation plan based on architectural analysis. Read the task, architectural analysis, and create a comprehensive implementation plan.
 
 **Instructions:**
-1. Read the task file at $TASK_FILE_PATH (replace with the actual path from Initial Setup)
+
+=== CONTEXT PROVIDED INLINE ===
+{$INLINE_CONTEXT}
+=== END CONTEXT ===
+
+1. OPTIONAL: If you need details beyond the summary, read:
+   - Task file: $TASK_FILE_PATH
+   - Feature architecture: $FEATURE_ARCH_PATH (if available)
 2. Read the architectural analysis at $ARCH_FILE_PATH (replace with ./.plan/arch_[task_filename].md)
 3. **CRITICAL**: If the architectural analysis includes "Integration with Prior Tasks" section, read ALL referenced prior task plans to understand what already exists
-4. Follow both the task requirements and architectural guidelines from the analysis
+4. Follow both the task requirements (above) and architectural guidelines from the analysis
 5. DO NOT commit any changes - focus on implementation planning
 6. Create implementation plan at ./.plan/[task_filename].md (same filename as task, different directory)
 7. Your implementation plan should build upon the architectural foundation and include:
@@ -180,138 +256,86 @@ You're tasked with creating a detailed implementation plan based on architectura
 - Proceed to Phase 3 once @agent_1 indicates completion and file is verified
 - Do not review the changes yourself, just move to Phase 3
 
-## Phase 3a: Implementation Review with @agent_2
+## Phase 3: Unified Plan Review
 
-**Step 1: Spawn @agent_2**
-Send the following prompt to @agent_2:
+**Step 1: Spawn plan_reviewer agent**
+
+Send the following prompt to plan_reviewer agent:
 
 ```
-You're an expert implementation reviewer tasked with evaluating implementation planning feasibility and technical soundness.
+You're reviewing an implementation plan for both feasibility and architectural alignment.
 
 **Review Process:**
-1. Read the original task file at $TASK_FILE_PATH (replace with the actual path from Initial Setup)
-2. Read the architectural analysis file at $ARCH_FILE_PATH (replace with ./.plan/arch_[task_filename].md)
-3. Read the implementation plan file at $PLAN_FILE_PATH (replace with ./.plan/[task_filename].md)
-4. Verify that all files exist and have proper naming
-5. Focus primarily on implementation feasibility and technical execution
 
-**Evaluation Criteria:**
-Calculate compliance score (0-100%) based on:
+=== CONTEXT PROVIDED ===
+{$INLINE_CONTEXT}
+=== END CONTEXT ===
 
-**Implementation Review (50% of score):**
-- Implementation plan follows architectural guidelines
-- Plan is detailed enough for development
-- No scope creep beyond task requirements (unless marked IMPORTANT)
-- Plan allows for future modifications without major rewrites
+1. Read the architectural analysis at $ARCH_FILE_PATH
+2. Read the implementation plan at $PLAN_FILE_PATH
+3. OPTIONAL: Read task file at $TASK_FILE_PATH if more detail needed
+4. Evaluate using dual criteria (50% implementation, 50% architectural)
+
+**Implementation Criteria (50% of score):**
+- Plan follows architectural guidelines
+- Detailed enough for development
+- No scope creep beyond requirements
+- Maintainable and extensible
 - Testing strategy is comprehensive
+- Integration Review (if prior tasks exist):
+  * Proper integration with prior components/APIs
+  * No hardcoded data when APIs available
+  * No duplication of existing functionality
 
-**Integration Review (30% of score):**
-- If task has dependencies/prior tasks, verify the plan properly integrates with prior work
-- NO hardcoded data when prior tasks provide proper APIs/services/components
-- NO duplication of functionality already implemented in prior tasks
-- Clear specification of which prior components/APIs to use
-- Integration testing strategy covers connections to prior work
+**Architectural Criteria (50% of score):**
+- Technology choices align with architecture
+- Architectural patterns correctly applied
+- Scalability, security, performance preserved
+- No architectural drift from analysis
 
-**Feasibility Review (20% of score):**
-- Implementation approach is technically sound
-- Dependencies and integration points are realistic
-- Development phases are logically sequenced
-- Resource requirements are reasonable
-
-**Scoring Criteria:**
-- 90-100%: Excellent implementation plan, technically sound and feasible
-- 70-89%: Good implementation plan with minor tasks or missing components
-- 50-69%: Significant implementation tasks or feasibility concerns
-- Below 50%: Major implementation failures, plan is not executable
+**Scoring:**
+- 90-100%: Excellent, ready for implementation
+- 70-89%: Good with minor issues
+- 50-69%: Significant issues need fixing
+- Below 50%: Major failures, needs rework
 
 **Output Format:**
-Provide detailed review including:
-- **Implementation Compliance Score (%)**
-- **Implementation Plan Review**: Feasibility and completeness assessment
-- **Integration Review**: Assessment of how well the plan integrates with prior tasks (if applicable)
-  * Are prior components/APIs properly used instead of hardcoded?
-  * Is functionality reused instead of duplicated?
-  * Are integration points clearly specified?
-- **Technical Soundness**: Assessment of technical approach and dependencies
-- **Development Feasibility**: Evaluation of development phases and resource requirements
-- **Specific Issues**: Any implementation problems that need addressing
-- **Recommendations**: Specific implementation improvements needed
-- **Pass/Fail Decision**: Pass if 90%+, fail if below 90%
+- **Overall Compliance Score (%)**: Single score
+- **Implementation Assessment**: Detailed feasibility review
+- **Architectural Assessment**: Alignment and patterns review
+- **Integration Assessment** (if applicable): Prior task integration
+- **Critical Issues**: List of must-fix items
+- **Recommendations**: Specific improvements needed
+- **Pass/Fail**: Pass if 90%+, fail otherwise
 ```
 
-
-**Step 2: Receive @agent_2 implementation review**
-- Wait for @agent_2 to complete and provide implementation compliance score
-- Store implementation review feedback for later analysis
-- Proceed to Phase 3b regardless of score
-
-## Phase 3b: Architectural Validation with architect agent
-
-**Step 1: Spawn architect agent**
-Send the following prompt to architect agent:
-
-```
-You're tasked with validating the architectural integrity of the final implementation plan.
-
-**Validation Process:**
-1. Read the original task file at $TASK_FILE_PATH (replace with the actual path from Initial Setup)
-2. Read your original architectural analysis at $ARCH_FILE_PATH (replace with ./.plan/arch_[task_filename].md)
-3. Read the implementation plan at $PLAN_FILE_PATH (replace with ./.plan/[task_filename].md)
-4. Assess architectural integrity and alignment
-
-**Evaluation Criteria:**
-Calculate architectural compliance score (0-100%) based on:
-
-**Technology Validation (30% of score):**
-- Implementation choices align with architectural recommendations
-- Technology selections remain current and well-supported (validate via web search)
-- No architectural drift from original analysis
-
-**Pattern Integrity (30% of score):**
-- Architectural patterns are correctly applied in implementation
-- System design maintains intended structure and boundaries
-- Integration patterns follow architectural guidelines
-
-**Quality Attributes (40% of score):**
-- Scalability considerations are preserved
-- Security architecture is maintained
-- Performance implications are addressed
-- Maintainability goals are achievable
-
-**Output Format:**
-- **Architectural Compliance Score (%)**
-- **Technology Assessment**: Current status of chosen technologies
-- **Pattern Analysis**: How well architectural patterns are preserved
-- **Quality Review**: Security, scalability, performance, maintainability
-- **Architectural Drift**: Any deviations from original analysis
-- **Recommendations**: Architectural improvements if needed
-- **Pass/Fail Decision**: Pass if 90%+, fail if below 90%
-```
-
-**Step 2: Receive architect validation**
-- Wait for architect agent to complete validation
-- Receive architectural compliance score and feedback
-
-**Step 3: Analyze Combined Reviews**
-- Calculate overall score: (Implementation Score + Architectural Score) / 2
-- If overall score is 90% or higher: Proceed to Phase 5 (Final Completion)
-- If overall score is below 90%: Proceed to Phase 4 (Refinement Loop)
-- Pass both review feedbacks to refinement phase for targeted fixes
+**Step 2: Analyze Review**
+- Receive overall compliance score and feedback
+- If score ≥ 90%: Proceed to Phase 5 (Final Completion)
+- If score < 90%: Proceed to Phase 4 (Refinement Loop)
 
 ## Phase 4: Refinement Loop (If Needed)
 
 **If overall score < 90%:**
-1. Extract specific issues from both @agent_2 and architect reviews and categorize them:
-   - **Architectural Issues**: Problems identified by architect agent (technology drift, pattern violations, quality concerns)
-   - **Implementation Issues**: Problems identified by @agent_2 (feasibility, technical soundness, development planning)
-   - **Cross-cutting Issues**: Issues that affect both architecture and implementation
+1. Extract critical issues from plan_reviewer feedback
+2. Categorize issues:
+   - **Architectural issues** → needs architect
+   - **Implementation issues** → needs planner
+   - **Mixed issues** → needs both
 
-2. **For Architectural Issues**: Spawn architect agent with this prompt:
+3. Spawn appropriate agent(s):
+
+**For Architectural Issues**: Spawn architect agent with this prompt:
 ```
 You need to refine the architectural analysis based on review feedback. Read all existing documents and fix specific architectural issues.
 
 **Instructions:**
-1. Read the task file at $TASK_FILE_PATH (replace with the actual path from Initial Setup)
+
+=== CONTEXT PROVIDED ===
+{$INLINE_CONTEXT}
+=== END CONTEXT ===
+
+1. Read the task file at $TASK_FILE_PATH (if more detail needed)
 2. Read the current architectural analysis at $ARCH_FILE_PATH (replace with ./.plan/arch_[task_filename].md)
 3. Read the implementation plan at $PLAN_FILE_PATH (replace with ./.plan/[task_filename].md)
 4. Review the feedback and fix these specific architectural issues:
@@ -323,12 +347,17 @@ You need to refine the architectural analysis based on review feedback. Read all
 9. Mark any updated critical decisions as IMPORTANT
 ```
 
-3. **For Implementation Issues**: Spawn @agent_1 with this prompt:
+**For Implementation Issues**: Spawn @agent_1 with this prompt:
 ```
 You need to refine the implementation plan based on review feedback. Read all existing documents and fix specific implementation issues.
 
 **Instructions:**
-1. Read the task file at $TASK_FILE_PATH (replace with the actual path from Initial Setup)
+
+=== CONTEXT PROVIDED ===
+{$INLINE_CONTEXT}
+=== END CONTEXT ===
+
+1. Read the task file at $TASK_FILE_PATH (if more detail needed)
 2. Read the architectural analysis at $ARCH_FILE_PATH (replace with ./.plan/arch_[task_filename].md)
 3. Read the current implementation plan at $PLAN_FILE_PATH (replace with ./.plan/[task_filename].md)
 4. Fix these specific implementation issues:
@@ -339,9 +368,10 @@ You need to refine the implementation plan based on review feedback. Read all ex
 8. Provide a summary of specific fixes made
 ```
 
-4. After fixes are made, spawn both @agent_2 and architect agent again to review the updated plans
-5. Calculate new overall score from both reviews
-6. Repeat until 90%+ overall compliance is achieved or maximum iterations reached
+4. After fixes: Re-spawn plan_reviewer for unified re-evaluation
+5. Repeat until 90%+ compliance achieved or max 7 iterations
+
+**Important**: Only re-review the updated artifact, not unchanged ones.
 
 
 ## Phase 5: Final Completion
@@ -357,9 +387,8 @@ You need to refine the implementation plan based on review feedback. Read all ex
      - Key architectural decisions made
      - Implementation approach selected
    - **Quality Metrics:**
-     - Implementation feasibility score (from @agent_2)
-     - Architectural integrity score (from architect agent)
-     - Overall combined score
+     - Overall compliance score (unified review)
+     - Number of review iterations
    - **Next Steps:**
      - Any remaining minor considerations
      - Recommended development sequence

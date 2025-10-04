@@ -67,31 +67,64 @@ You're tasked with creating a feature-level architectural analysis. This will gu
 
 **Instructions:**
 1. Read the feature file at ./.feature/{feature-id}-{short-feature-title}.md (replace with actual path)
-2. Use your web search capabilities to research:
+2. Analyze the feature complexity and determine research scope:
+   - If feature uses common, well-established patterns → minimal research
+   - If feature involves new/emerging technologies → targeted research
+   - Focus research on unknowns only, not general best practices
+3. Use your web search capabilities CONDITIONALLY to research:
    - Current best practices for this type of feature
    - Architectural patterns that fit this feature
    - Technology stack recommendations
    - Industry standards and approaches
-3. Create a feature architecture file at ./.feature/arch_{feature-id}.md
-4. Your analysis should include:
-   - **Feature Architecture Overview**: High-level architectural approach for the entire feature
-   - **Research Findings**: Current industry practices and best approaches found through web search
-   - **Technology Stack**: Recommended frameworks, libraries, and tools with rationale
-   - **System Components**: Major components/modules this feature will require
-   - **Integration Strategy**: How this feature integrates with existing systems
-   - **Data Architecture**: Data models, storage, and flow considerations
-   - **Scalability & Performance**: How this feature should scale
-   - **Security Considerations**: Security requirements and approach
-   - **Decomposition Guidance**: Suggestions for how this feature could be broken down into implementable issues (logical boundaries, dependencies, phases)
-5. Mark critical architectural decisions as **IMPORTANT**
-6. Focus on feature-level architecture, not detailed implementation
-7. This architecture will be referenced by all child issues, so ensure it's comprehensive
+3. Create TWO files:
+   
+   A) ./.feature/arch_{feature-id}.md - ESSENTIAL DECISIONS ONLY
+      Include:
+      - **Key Architectural Decisions**: 3-5 critical decisions (IMPORTANT flagged)
+      - **Technology Stack**: Chosen frameworks, libraries, tools (with 1-line rationale)
+      - **System Components**: Major modules/services (high-level only)
+      - **Integration Strategy**: How feature integrates with existing systems
+      - **Critical Constraints**: Security, performance, scalability requirements
+      - **Decomposition Guidance**: Logical boundaries for task breakdown
+      
+      Maximum: 1500 tokens
+      Focus: What implementers NEED to know
+   
+   B) ./.feature/arch_{feature-id}_research.md - DETAILED ANALYSIS (OPTIONAL)
+      Include:
+      - **Research Findings**: Industry practices, technology trends
+      - **Options Considered**: Alternative approaches and trade-offs
+      - **Deep Dives**: Detailed scalability, security, performance analysis
+      - **References**: Links, articles, case studies
+      
+      Purpose: Reference material for deep questions
+
+4. In the essential arch file, add reference:
+   "For detailed research and alternatives, see: arch_{feature-id}_research.md"
+
+5. The essential architecture file (arch_{feature-id}.md) should include ONLY:
+   - **Key Architectural Decisions**: 3-5 critical decisions (mark as IMPORTANT)
+   - **Technology Stack**: Chosen frameworks, libraries, tools (table format with 1-line rationale)
+   - **System Components**: Major components/modules (high-level list only)
+   - **Integration Strategy**: How this feature integrates with existing systems (2-3 sentences)
+   - **Critical Constraints**: Security, performance, scalability requirements (bullet points)
+   - **Decomposition Guidance**: Logical boundaries for task breakdown
+
+6. The research file (arch_{feature-id}_research.md) should include:
+   - **Research Findings**: Detailed industry practices and best approaches
+   - **Options Considered**: Alternative approaches and trade-offs
+   - **Deep Dive Analysis**: Detailed scalability, security, performance analysis
+   - **References**: Links, articles, case studies
+
+7. Mark critical architectural decisions as **IMPORTANT**
+8. Focus on feature-level architecture, not detailed implementation
+9. This architecture will be referenced by all child issues, so ensure essential file is concise and actionable
 ```
 
 ### Step 2: Wait for architect completion
 - Wait for architect agent to complete the architectural analysis
-- Verify the file `./.feature/arch_{feature-id}.md` exists
-- If the file doesn't exist or is incomplete, retry with explicit instructions
+- Verify the files `./.feature/arch_{feature-id}.md` and `./.feature/arch_{feature-id}_research.md` exist
+- If the files don't exist or are incomplete, retry with explicit instructions
 
 
 ## Phase 3: Final Report
@@ -101,6 +134,7 @@ Provide the user with:
 ```
 ✓ Feature Created: ./.feature/{feature-id}-{short-feature-title}.md
 ✓ Architecture Plan: ./.feature/arch_{feature-id}.md
+✓ Architecture Research: ./.feature/arch_{feature-id}_research.md
 
 Next Steps:
 1. Review the feature specification and architecture
