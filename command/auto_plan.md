@@ -62,6 +62,13 @@ Full details available at: {$FEATURE_ARCH_PATH}
 
 ## Phase 1: Architectural Analysis with architect agent
 
+**Step 0: Extract task filename**
+1. From $TASK_FILE_PATH (e.g., "./.task/auth.md"), extract:
+   - $TASK_FILENAME = "auth.md" (full filename with extension)
+   - $TASK_BASENAME = "auth" (filename without extension)
+2. Update $ARCH_FILE_PATH = "./.plan/arch_$TASK_BASENAME.md"
+3. Log: "Task filename extracted: $TASK_FILENAME, Architecture path: $ARCH_FILE_PATH"
+
 **Step 1: Spawn architect agent**
 
 Send the following prompt to architect agent:
@@ -74,6 +81,10 @@ You're tasked with creating an architectural analysis for a development task. Re
 === CONTEXT PROVIDED INLINE ===
 {$INLINE_CONTEXT}
 === END CONTEXT ===
+
+**File Paths:**
+- Task file: $TASK_FILE_PATH
+- Architecture file: $ARCH_FILE_PATH
 
 The above context is extracted from the task and feature architecture files.
 
@@ -89,7 +100,7 @@ The above context is extracted from the task and feature architecture files.
    Skip broad architectural research.
 4. Use your web search capabilities to research current best practices, technologies, and architectural patterns relevant to this task
 5. DO NOT commit any changes - focus only on architectural analysis
-4. you MUST Create an architectural analysis file at ./.plan/arch_[task_filename].md (if task is 'auth.md', create './.plan/arch_auth.md') if you have nothing to add create empty file.
+4. you MUST Create an architectural analysis file at $ARCH_FILE_PATH if you have nothing to add create empty file.
 5. Your analysis should include:
    - **Context Analysis**: Summary of the architectural challenge
    - **Research Findings**: Current industry practices, technology trends, and best practices found through web search
@@ -109,8 +120,12 @@ The above context is extracted from the task and feature architecture files.
 **Step 2: Receive architect analysis**
 - Wait for architect agent to complete and provide the summary
 - Receive completion confirmation from architect agent
-- Verify the architectural analysis file exists at ./.plan/arch_[task_filename].md
-- If file doesn't exist or has wrong name, restart Phase 1 with explicit file naming instructions
+- Verify the architectural analysis file exists at $ARCH_FILE_PATH
+- If file doesn't exist or has wrong name, restart Phase 1 with explicit file naming instructions:
+  ```
+  You MUST create the architectural analysis at exactly: $ARCH_FILE_PATH
+  The .plan directory already exists. Use the exact filename provided.
+  ```
 - Proceed to Phase 1.5 once architect indicates completion and file is verified
 - Do not review the changes yourself, just move to Phase 1.5
 
@@ -157,7 +172,7 @@ You're analyzing integration requirements for a task that builds upon prior work
 {$INLINE_CONTEXT}
 === END CONTEXT ===
 
-1. Read the current architectural analysis at $ARCH_FILE_PATH (replace with ./.plan/arch_[task_filename].md)
+1. Read the current architectural analysis at $ARCH_FILE_PATH
 2. Read ALL prior/dependent task plans in this feature:
    $PRIOR_TASK_PLANS (replace with comma-separated list of ./.plan files from prior tasks)
 3. Task context is provided above. Only read $TASK_FILE_PATH if you need additional details.
@@ -205,6 +220,13 @@ You're analyzing integration requirements for a task that builds upon prior work
 
 ## Phase 2: Detailed Implementation Planning with @agent_1
 
+**Step 0: Extract task filename**
+1. From $TASK_FILE_PATH (e.g., "./.task/auth.md"), extract:
+   - $TASK_FILENAME = "auth.md" (full filename with extension)
+   - $TASK_BASENAME = "auth" (filename without extension)
+2. Update $PLAN_FILE_PATH = "./.plan/$TASK_FILENAME"
+3. Log: "Task filename extracted: $TASK_FILENAME, Plan path: $PLAN_FILE_PATH"
+
 **Step 1: Spawn @agent_1**
 
 Send the following prompt to @agent_1:
@@ -218,14 +240,19 @@ You're tasked with creating a detailed implementation plan based on architectura
 {$INLINE_CONTEXT}
 === END CONTEXT ===
 
+**File Paths:**
+- Task file: $TASK_FILE_PATH
+- Architecture file: $ARCH_FILE_PATH  
+- Implementation plan file: $PLAN_FILE_PATH
+
 1. OPTIONAL: If you need details beyond the summary, read:
    - Task file: $TASK_FILE_PATH
    - Feature architecture: $FEATURE_ARCH_PATH (if available)
-2. Read the architectural analysis at $ARCH_FILE_PATH (replace with ./.plan/arch_[task_filename].md)
+2. Read the architectural analysis at $ARCH_FILE_PATH
 3. **CRITICAL**: If the architectural analysis includes "Integration with Prior Tasks" section, read ALL referenced prior task plans to understand what already exists
 4. Follow both the task requirements (above) and architectural guidelines from the analysis
 5. DO NOT commit any changes - focus on implementation planning
-6. Create implementation plan at ./.plan/[task_filename].md (same filename as task, different directory)
+6. Create implementation plan at $PLAN_FILE_PATH
 7. Your implementation plan should build upon the architectural foundation and include:
    - **Implementation Overview**: How to implement following the architectural guidelines
    - **Integration Strategy** (if applicable):
@@ -251,8 +278,12 @@ You're tasked with creating a detailed implementation plan based on architectura
 **Step 2: Receive @agent_1 implementation plan**
 - Wait for @agent_1 to complete and provide the summary
 - Receive completion confirmation from @agent_1
-- Verify the implementation plan file exists at ./.plan/[task_filename].md
-- If file doesn't exist or has wrong name, restart Phase 2 with explicit file naming instructions
+- Verify the implementation plan file exists at $PLAN_FILE_PATH
+- If file doesn't exist or has wrong name, restart Phase 2 with explicit file naming instructions:
+  ```
+  You MUST create the implementation plan at exactly: $PLAN_FILE_PATH
+  The .plan directory already exists. Use the exact filename provided.
+  ```
 - Proceed to Phase 3 once @agent_1 indicates completion and file is verified
 - Do not review the changes yourself, just move to Phase 3
 
@@ -336,8 +367,8 @@ You need to refine the architectural analysis based on review feedback. Read all
 === END CONTEXT ===
 
 1. Read the task file at $TASK_FILE_PATH (if more detail needed)
-2. Read the current architectural analysis at $ARCH_FILE_PATH (replace with ./.plan/arch_[task_filename].md)
-3. Read the implementation plan at $PLAN_FILE_PATH (replace with ./.plan/[task_filename].md)
+2. Read the current architectural analysis at $ARCH_FILE_PATH
+3. Read the implementation plan at $PLAN_FILE_PATH
 4. Review the feedback and fix these specific architectural issues:
    $ARCHITECTURAL_ISSUES (replace with architectural issues from architect agent review)
 5. Use web search to research better solutions if needed
@@ -358,13 +389,13 @@ You need to refine the implementation plan based on review feedback. Read all ex
 === END CONTEXT ===
 
 1. Read the task file at $TASK_FILE_PATH (if more detail needed)
-2. Read the architectural analysis at $ARCH_FILE_PATH (replace with ./.plan/arch_[task_filename].md)
-3. Read the current implementation plan at $PLAN_FILE_PATH (replace with ./.plan/[task_filename].md)
+2. Read the architectural analysis at $ARCH_FILE_PATH
+3. Read the current implementation plan at $PLAN_FILE_PATH
 4. Fix these specific implementation issues:
-   $IMPLEMENTATION_ISSUES (replace with implementation issues from @agent_2 review)
+   $IMPLEMENTATION_ISSUES (replace with implementation issues from plan_reviewer review)
 5. Make ONLY the fixes listed above - no other changes
 6. Ensure the plan follows architectural guidelines
-7. Update the implementation plan file at ./.plan/[task_filename].md
+7. Update the implementation plan file at $PLAN_FILE_PATH
 8. Provide a summary of specific fixes made
 ```
 
@@ -378,9 +409,9 @@ You need to refine the implementation plan based on review feedback. Read all ex
 
 **When 90%+ compliance is achieved:**
 1. Provide a comprehensive final summary to the user:
-   - **Files Created:**
-     - Architectural analysis: ./.plan/arch_[task_filename].md
-     - Implementation plan: ./.plan/[task_filename].md
+- **Files Created:**
+  - Architectural analysis: $ARCH_FILE_PATH
+  - Implementation plan: $PLAN_FILE_PATH
    - **Process Summary:**
      - Number of iterations required
      - Final overall compliance score (average of implementation + architectural)
