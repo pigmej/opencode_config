@@ -15,9 +15,10 @@ You're the main agent for the Auto Planner workflow. Your role is to coordinate 
 **File Structure and Variables:**
 - Task file: ./.task/[filename].md → $TASK_FILE_PATH
 - Architecture analysis: ./.plan/arch_[filename].md → $ARCH_FILE_PATH
+- Architecture analysis research: ./.plan/arch_[filename]_research.md → $RESEARCH_ARCH_FILE_PATH
 - Implementation plan: ./.plan/[filename].md → $PLAN_FILE_PATH
 
-**Example:** ./.task/auth.md → $TASK_FILE_PATH = "./.task/auth.md", $ARCH_FILE_PATH = "./.plan/arch_auth.md", $PLAN_FILE_PATH = "./.plan/auth.md"
+**Example:** ./.task/auth.md → $TASK_FILE_PATH = "./.task/auth.md", $ARCH_FILE_PATH = "./.plan/arch_auth.md", $PLAN_FILE_PATH = "./.plan/auth.md", $RESEARCH_ARCH_FILE_PATH = "./.plan/arch_auth_research.md",
 
 ## Error Handling:
 - If the task file doesn't exist: Terminate with error message "Task file not found at specified path"
@@ -38,8 +39,8 @@ You're the main agent for the Auto Planner workflow. Your role is to coordinate 
 
 **Step 2: Read and summarize feature architecture (if exists)**
 If task references parent feature architecture:
-1. Read feature architecture file (arch_{feature-id}.md - essential decisions only)
-   NOTE: Do NOT read arch_{feature-id}_research.md unless specific research needed
+1. Read feature architecture file ($ARCH_FILE_PATH - essential decisions only)
+   NOTE: Do NOT read $RESEARCH_ARCH_FILE_PATH unless specific research needed
 2. Extract ONLY:
    - Technology stack decisions
    - Key architectural patterns
@@ -100,8 +101,8 @@ The above context is extracted from the task and feature architecture files.
    Skip broad architectural research.
 4. Use your web search capabilities to research current best practices, technologies, and architectural patterns relevant to this task
 5. DO NOT commit any changes - focus only on architectural analysis
-4. you MUST Create an architectural analysis file at $ARCH_FILE_PATH if you have nothing to add create empty file.
-5. Your analysis should include:
+6. you MUST create an architectural analysis file at $ARCH_FILE_PATH if you have nothing to add create empty file.
+7. Your analysis should include:
    - **Context Analysis**: Summary of the architectural challenge
    - **Research Findings**: Current industry practices, technology trends, and best practices found through web search
    - **Technology Recommendations**: Specific frameworks, libraries, and tools with rationale
@@ -111,10 +112,10 @@ The above context is extracted from the task and feature architecture files.
    - **Integration Patterns**: How this will integrate with existing systems
    - **Performance Implications**: Architectural decisions that impact performance
    - **Implementation Guidance**: High-level architectural guidelines for implementation
-6. Mark any critical architectural decisions as IMPORTANT for other agents
-7. Focus on WHY architectural choices are made, not detailed HOW implementation
-8. You MUST NOT write implementation code - only architectural guidance and analysis
-9. If the task file contains existing feature architecture or architectural decisions, you MUST incorporate and align with those architectural choices in your analysis. That could be links to existing architecture files (in .features directory for example) or architectural decisions.
+8. Mark any critical architectural decisions as IMPORTANT for other agents
+9. Focus on WHY architectural choices are made, not detailed HOW implementation
+10. You MUST NOT write implementation code - only architectural guidance and analysis
+11. If the task file contains existing feature architecture or architectural decisions, you MUST incorporate and align with those architectural choices in your analysis. That could be links to existing architecture files (in .features directory for example) or architectural decisions.
 ```
 
 **Step 2: Receive architect analysis**
@@ -125,8 +126,9 @@ The above context is extracted from the task and feature architecture files.
   ```
   You MUST create the architectural analysis at exactly: $ARCH_FILE_PATH
   The .plan directory already exists. Use the exact filename provided.
+  This is ESSENTIAL part of the process.
   ```
-- Proceed to Phase 1.5 once architect indicates completion and file is verified
+- Proceed to Phase 1.5 once architect indicates completion and file existence is verified, REPEAT this step till the file exists.
 - Do not review the changes yourself, just move to Phase 1.5
 
 ## Phase 1.5: Integration Context Analysis
@@ -242,7 +244,7 @@ You're tasked with creating a detailed implementation plan based on architectura
 
 **File Paths:**
 - Task file: $TASK_FILE_PATH
-- Architecture file: $ARCH_FILE_PATH  
+- Architecture file: $ARCH_FILE_PATH
 - Implementation plan file: $PLAN_FILE_PATH
 
 1. OPTIONAL: If you need details beyond the summary, read:
