@@ -15,7 +15,6 @@ You're the main agent for the Auto Planner workflow. Your role is to coordinate 
 **File Structure and Variables:**
 - Task file: ./.task/[filename].md → $TASK_FILE_PATH
 - Architecture analysis: ./.plan/arch_[filename].md → $ARCH_FILE_PATH
-- Architecture analysis research: ./.plan/arch_[filename]_research.md → $RESEARCH_ARCH_FILE_PATH
 - Implementation plan: ./.plan/[filename].md → $PLAN_FILE_PATH
 
 **Example:** ./.task/auth.md → $TASK_FILE_PATH = "./.task/auth.md", $ARCH_FILE_PATH = "./.plan/arch_auth.md", $PLAN_FILE_PATH = "./.plan/auth.md", $RESEARCH_ARCH_FILE_PATH = "./.plan/arch_auth_research.md",
@@ -31,7 +30,7 @@ You're the main agent for the Auto Planner workflow. Your role is to coordinate 
 1. Read task file at $TASK_FILE_PATH
 2. Extract:
    - Task ID and title
-   - Parent feature ID (if exists)
+   - Parent feature ID (if exists) → $FEATURE_ID
    - Key requirements (list)
    - Expected outcome
    - Dependencies
@@ -39,8 +38,8 @@ You're the main agent for the Auto Planner workflow. Your role is to coordinate 
 
 **Step 2: Read and summarize feature architecture (if exists)**
 If task references parent feature architecture:
-1. Read feature architecture file ($ARCH_FILE_PATH - essential decisions only)
-   NOTE: Do NOT read $RESEARCH_ARCH_FILE_PATH unless specific research needed
+1. Read feature architecture file (./.feature/arch_$FEATURE_ID.md - essential decisions only)
+   NOTE: Do NOT read ./.feature/arch_$FEATURE_ID_research.md unless specific research needed
 2. Extract ONLY:
    - Technology stack decisions
    - Key architectural patterns
@@ -289,11 +288,11 @@ You're tasked with creating a detailed implementation plan based on architectura
 - Proceed to Phase 3 once @agent_1 indicates completion and file is verified
 - Do not review the changes yourself, just move to Phase 3
 
-## Phase 3: Unified Plan Review
+## Phase 3: Plan Review with @agent_2
 
-**Step 1: Spawn plan_reviewer agent**
+**Step 1: Spawn @agent_2 agent**
 
-Send the following prompt to plan_reviewer agent:
+Send the following prompt to @agent_2:
 
 ```
 You're reviewing an implementation plan for both feasibility and architectural alignment.
@@ -307,45 +306,29 @@ You're reviewing an implementation plan for both feasibility and architectural a
 1. Read the architectural analysis at $ARCH_FILE_PATH
 2. Read the implementation plan at $PLAN_FILE_PATH
 3. OPTIONAL: Read task file at $TASK_FILE_PATH if more detail needed
-4. Evaluate using dual criteria (50% implementation, 50% architectural)
 
-**Implementation Criteria (50% of score):**
-- Plan follows architectural guidelines
-- Detailed enough for development
-- No scope creep beyond requirements
-- Maintainable and extensible
-- Testing strategy is comprehensive
-- Integration Review (if prior tasks exist):
-  * Proper integration with prior components/APIs
-  * No hardcoded data when APIs available
-  * No duplication of existing functionality
+**Review Criteria:**
+- **Implementation Feasibility**: Is the plan detailed enough for development? Does it follow architectural guidelines?
+- **Architectural Alignment**: Does the plan align with the architectural decisions? Are technology choices appropriate?
+- **Integration Quality** (if applicable): Does it properly integrate with prior tasks without duplication?
+- **Completeness**: Are all requirements covered? Is testing strategy comprehensive?
 
-**Architectural Criteria (50% of score):**
-- Technology choices align with architecture
-- Architectural patterns correctly applied
-- Scalability, security, performance preserved
-- No architectural drift from analysis
-
-**Scoring:**
-- 90-100%: Excellent, ready for implementation
-- 70-89%: Good with minor issues
-- 50-69%: Significant issues need fixing
-- Below 50%: Major failures, needs rework
-
-**Output Format:**
-- **Overall Compliance Score (%)**: Single score
-- **Implementation Assessment**: Detailed feasibility review
-- **Architectural Assessment**: Alignment and patterns review
-- **Integration Assessment** (if applicable): Prior task integration
-- **Critical Issues**: List of must-fix items
+**Provide your review:**
+- **Overall Assessment**: Ready for implementation, needs minor fixes, or needs major rework
+- **Implementation Feedback**: Specific issues with the implementation approach
+- **Architectural Feedback**: Any architectural concerns or misalignments
+- **Critical Issues**: Must-fix items (if any)
 - **Recommendations**: Specific improvements needed
-- **Pass/Fail**: Pass if 90%+, fail otherwise
+
+**Decision**: 
+- If plan is ready: "PASS - Ready for implementation"
+- If needs fixes: "NEEDS REFINEMENT" followed by specific issues
 ```
 
 **Step 2: Analyze Review**
-- Receive overall compliance score and feedback
-- If score ≥ 90%: Proceed to Phase 5 (Final Completion)
-- If score < 90%: Proceed to Phase 4 (Refinement Loop)
+- Receive review feedback from @agent_2
+- If assessment is "PASS - Ready for implementation": Proceed to Phase 5 (Final Completion)
+- If assessment is "NEEDS REFINEMENT": Proceed to Phase 4 (Refinement Loop)
 
 ## Phase 4: Refinement Loop (If Needed)
 
@@ -358,7 +341,7 @@ You're reviewing an implementation plan for both feasibility and architectural a
 
 3. Spawn appropriate agent(s):
 
-**For Architectural Issues**: Spawn architect agent with this prompt:
+**For Architectural Issues**: Spawn @agent_2 with this prompt:
 ```
 You need to refine the architectural analysis based on review feedback. Read all existing documents and fix specific architectural issues.
 
@@ -372,9 +355,9 @@ You need to refine the architectural analysis based on review feedback. Read all
 2. Read the current architectural analysis at $ARCH_FILE_PATH
 3. Read the implementation plan at $PLAN_FILE_PATH
 4. Review the feedback and fix these specific architectural issues:
-   $ARCHITECTURAL_ISSUES (replace with architectural issues from architect agent review)
+   $ARCHITECTURAL_ISSUES (replace with architectural issues from @agent_2 review)
 5. Use web search to research better solutions if needed
-6. Update the architectural analysis file at ./.plan/arch_[issue_filename].md
+6. Update the architectural analysis file at $ARCH_FILE_PATH
 7. Make ONLY the fixes listed above - no other changes
 8. Ensure architectural decisions support the implementation plan
 9. Mark any updated critical decisions as IMPORTANT
@@ -394,33 +377,33 @@ You need to refine the implementation plan based on review feedback. Read all ex
 2. Read the architectural analysis at $ARCH_FILE_PATH
 3. Read the current implementation plan at $PLAN_FILE_PATH
 4. Fix these specific implementation issues:
-   $IMPLEMENTATION_ISSUES (replace with implementation issues from plan_reviewer review)
+   $IMPLEMENTATION_ISSUES (replace with implementation issues from @agent_2 review)
 5. Make ONLY the fixes listed above - no other changes
 6. Ensure the plan follows architectural guidelines
 7. Update the implementation plan file at $PLAN_FILE_PATH
 8. Provide a summary of specific fixes made
 ```
 
-4. After fixes: Re-spawn plan_reviewer for unified re-evaluation
-5. Repeat until 90%+ compliance achieved or max 7 iterations
+4. After fixes: Re-spawn @agent_2 for re-evaluation
+5. Repeat until "PASS - Ready for implementation" achieved or max 7 iterations
 
 **Important**: Only re-review the updated artifact, not unchanged ones.
 
 
 ## Phase 5: Final Completion
 
-**When 90%+ compliance is achieved:**
+**When "PASS - Ready for implementation" is achieved:**
 1. Provide a comprehensive final summary to the user:
 - **Files Created:**
   - Architectural analysis: $ARCH_FILE_PATH
   - Implementation plan: $PLAN_FILE_PATH
    - **Process Summary:**
      - Number of iterations required
-     - Final overall compliance score (average of implementation + architectural)
+     - Final review assessment from @agent_2
      - Key architectural decisions made
      - Implementation approach selected
    - **Quality Metrics:**
-     - Overall compliance score (unified review)
+     - Review outcome (PASS/NEEDS REFINEMENT)
      - Number of review iterations
    - **Next Steps:**
      - Any remaining minor considerations
@@ -431,6 +414,6 @@ You need to refine the implementation plan based on review feedback. Read all ex
 **Workflow Benefits:**
 - Research-backed architectural decisions
 - Comprehensive implementation planning
-- Dual-validation process (implementation + architectural integrity)
+- Dynamic agent selection for customized review approach
 - Separation of architectural and implementation concerns
 - Real-time validation against current industry best practices
