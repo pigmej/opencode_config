@@ -67,18 +67,22 @@ Generates comprehensive development plans with architectural analysis and implem
 
 ### Process Flow
 
-#### Phase 0.5: Extract Essential Context 🆕
-- **Purpose**: Extract and prepare context once for all agents
+#### Phase 0: Setup & Context Extraction
+- **Purpose**: Validate input and extract context for all agents
 - **Activities**:
+  - Validate task file exists
+  - Extract filename components and set file paths
   - Read and summarize task file (max 300 tokens)
   - Extract feature architecture summary if exists (max 400 tokens)
   - Prepare inline context for all subsequent phases
+- **Reliability**: Clear error handling and termination conditions
 - **Benefit**: Eliminates redundant file reads (40% token savings)
 
 #### Phase 1: Architectural Analysis
 - **Agent**: `architect`
+- **Retry Limit**: 3 attempts
 - **Input**: Inline context + task file reference
-- **Output**: `./.plan/arch_[filename].md`
+- **Output**: `./.plan/arch_[basename].md`
 - **Token Optimizations**:
   - ✅ **Conditional Research**: Skips research if tech already specified or pattern is common
   - ✅ **Reuses Feature Architecture**: No re-research of parent feature decisions
@@ -87,18 +91,11 @@ Generates comprehensive development plans with architectural analysis and implem
   - Targeted web research (only for unknowns)
   - Task-specific architecture patterns
   - Integration approach if dependencies exist
-
-#### Phase 1.5: Integration Analysis (Conditional) 🆕
-- **Agent**: `architect`
-- **When**: Only runs if prior tasks exist
-- **Token Optimization**: Phase 1 tasks skip this entirely (30% savings)
-- **Activities**:
-  - Analyze integration with prior task plans
-  - Identify reusable components/APIs
-  - Define integration requirements
+- **Reliability**: Automatic retry with clear failure handling
 
 #### Phase 2: Implementation Planning
-- **Agent**: First specified agent (`sonnet`)
+- **Agent**: First specified agent (`@agent_1`)
+- **Retry Limit**: 3 attempts
 - **Input**: Inline context + architectural analysis
 - **Output**: `./.plan/[filename].md`
 - **Token Optimizations**:
@@ -109,35 +106,57 @@ Generates comprehensive development plans with architectural analysis and implem
   - Integration strategy with prior tasks
   - Testing strategy
   - Development phases
+- **Reliability**: Automatic retry with clear failure handling
 
-#### Phase 3: Unified Plan Review 🆕
-- **Agent**: `plan_reviewer` (new unified agent)
-- **Scoring**: Implementation (50%) + Architecture (50%)
-- **Token Optimization**: Single review instead of dual review (25% savings)
-- **Criteria**:
-  - Implementation: Feasibility, completeness, integration, testing
-  - Architecture: Pattern alignment, tech choices, quality attributes
+#### Phase 3: Review
+- **Agent**: Second specified agent (`@agent_2`)
+- **Scoring System**: 
+  - Implementation Feasibility (40%)
+  - Architectural Alignment (30%)
+  - Completeness (20%)
+  - Integration Quality (10%)
+- **Decision Logic**: 90%+ = PASS, <90% = NEEDS REFINEMENT
+- **Activities**:
+  - Read architectural analysis and implementation plan
+  - Provide detailed percentage-based feedback
+  - Generate specific improvement recommendations
+- **Output**: Overall score + detailed breakdown + feedback
 
-#### Phase 4: Refinement Loop (if needed)
+#### Phase 4: Refinement Loop
 - **Trigger**: Overall score < 90%
-- **Process**: Targeted fixes based on specific feedback
-- **Maximum**: 7 iterations
-- **Token Optimization**: Only spawns needed agent (architect OR planner, not both)
+- **Maximum Iterations**: 3 total
+- **Process**: 
+  - Categorize issues (architectural vs implementation)
+  - Spawn appropriate agents (@agent_2 for architectural, @agent_1 for implementation)
+  - Use actual review feedback (not placeholders)
+  - Re-evaluate until 90%+ achieved or max iterations reached
+- **Reliability**: Clear iteration limits and graceful completion
 
-#### Phase 5: Completion
-- **Trigger**: 90%+ overall compliance
+#### Phase 5: Final Completion
+- **Trigger**: 90%+ score OR max refinement iterations reached
 - **Output**: Comprehensive summary with quality metrics
+- **Quality Metrics**: 
+  - Final overall score with detailed breakdown
+  - Iteration counts and improvement tracking
+  - File paths and architectural decisions summary
 
 ### Output Files
 - `./.plan/arch_[filename].md` - Architectural analysis
 - `./.plan/[filename].md` - Implementation plan
 
 ### Token Savings Summary
-- **Phase 0.5**: Inline context reduces redundant reads by ~40%
+- **Phase 0**: Inline context reduces redundant reads by ~40%
 - **Phase 1**: Conditional research reduces unnecessary research by ~50-70%
-- **Phase 1.5**: Skipped for Phase 1 tasks saves ~30%
-- **Phase 3**: Unified review saves ~25%
+- **Phase 2**: Inline context eliminates file re-reading by ~40%
+- **Phase 3**: Dynamic agent selection with focused review
 - **Overall**: ~60% token reduction per task
+
+### Reliability Improvements 🛡️
+- **Retry Limits**: 3 attempts per phase with clear failure handling
+- **Linear Flow**: Predictable Phase 0→1→2→3→4→5 progression
+- **No Infinite Loops**: Eliminated "repeat till file exists" patterns
+- **Proper Variable Substitution**: Real feedback content instead of placeholders
+- **Graceful Degradation**: Best effort completion when limits reached
 
 ### Example
 ```
@@ -158,11 +177,11 @@ Executes the development plan using coordinated agents with quality validation.
 
 ### Process Flow
 
-#### Phase 0.5: Extract Essential Context 🆕
-- **Purpose**: Extract context once for all agents
+#### Phase 0: Setup & Context Extraction
+- **Purpose**: Validate input and extract context for all agents
 - **Activities**:
-  - Read and summarize task file (max 200 tokens)
-  - Read and summarize plan file (max 300 tokens)
+  - Read and summarize task file (max 300 tokens)
+  - Read and summarize plan file (max 400 tokens)
   - Prepare inline context for all phases
 - **Benefit**: Eliminates redundant file reads (50% token savings)
 
@@ -208,7 +227,7 @@ Executes the development plan using coordinated agents with quality validation.
 - **No commits**: User decides when to commit changes
 
 ### Token Savings Summary
-- **Phase 0.5**: Context extracted once, passed inline (~50% reduction)
+- **Phase 0**: Context extracted once, passed inline (~50% reduction)
 - **Phase 1**: 500-token summary vs 2500-token full files (80% reduction)
 - **Phase 2**: Incremental diff of modified files only (30-50% reduction)
 - **Phase 3**: Inline context + incremental review per iteration (50% reduction)
@@ -264,28 +283,31 @@ Executes the development plan using coordinated agents with quality validation.
 
 ### Specialized Agents
 - **architect**: Architectural guidance and design decisions
-- **plan_reviewer**: Unified plan review (implementation + architecture) 🆕
 - **security-auditor**: Security audits and vulnerability identification
 - **review**: Code quality and best practices review
 
 ## Key Benefits
 
 1. **Structured Process**: Clear separation between planning and execution
-2. **Quality Assurance**: Validation at each stage ensures high-quality output
+2. **Quality Assurance**: Percentage-based validation ensures high-quality output
 3. **Architectural Integrity**: Research-backed architectural decisions
-4. **Iterative Improvement**: Automatic refinement until quality thresholds are met
+4. **Iterative Improvement**: Automatic refinement until 90%+ quality achieved
 5. **Traceability**: Clear documentation trail from task to implementation
 6. **Separation of Concerns**: Architecture, planning, and implementation are handled separately
 7. **Token Efficiency**: 60-75% token reduction through smart optimizations 🆕
+8. **Reliability**: Retry limits, error handling, and no infinite loops 🛡️
+9. **Flexibility**: Dynamic agent selection with customizable combinations
 
 ## Best Practices
 
 1. **Task Creation**: Be specific about requirements and include architectural considerations
-2. **Agent Selection**: Use different agents for planning and execution to get diverse perspectives
-3. **Quality Standards**: The 90% compliance threshold ensures high-quality deliverables
+2. **Agent Selection**: Use different agents for planning (@agent_1) and review (@agent_2) to get diverse perspectives
+3. **Quality Standards**: The 90% score threshold ensures high-quality deliverables
 4. **Documentation**: Each stage produces comprehensive documentation for future reference
 5. **No Premature Commits**: Review all changes before committing to maintain code quality
 6. **Feature vs Task**: Use feature workflow for complex projects with 3+ related tasks
+7. **Error Handling**: Monitor retry counts and check for graceful failure handling
+8. **Quality Tracking**: Review percentage breakdowns to understand specific improvement areas
 
 ## Token Optimization Features 🚀
 
@@ -297,13 +319,13 @@ This workflow has been optimized to reduce token usage by **60-75%** while maint
 - Focus only on novel tech or complex architectural decisions
 - **Savings**: 50-70% reduction in research tokens
 
-### 2. Optional Integration Analysis
-- Phase 1.5 only runs when prior tasks exist
-- Phase 1 tasks skip integration analysis entirely
-- **Savings**: ~30% tokens for early-phase tasks
+### 2. Conditional Integration Analysis
+- Integration analysis only when dependencies exist
+- Early-phase tasks skip integration entirely
+- **Savings**: ~30% tokens for independent tasks
 
 ### 3. Inline Context Passing
-- Context extracted once in Phase 0.5
+- Context extracted once in Phase 0
 - All agents receive inline summaries
 - Eliminates redundant file reads (6+ reads → 1 read)
 - **Savings**: ~40% reduction in context loading
@@ -314,11 +336,11 @@ This workflow has been optimized to reduce token usage by **60-75%** while maint
 - Agents read only what they need
 - **Savings**: ~35% reduction in architecture reads
 
-### 5. Unified Review Process
-- Single `plan_reviewer` agent replaces dual review
-- One review instead of two sequential reviews
-- Maintains same quality with fewer tokens
-- **Savings**: ~25% reduction in review phase
+### 5. Dynamic Agent Selection
+- User-specified agents for planning and review phases
+- Maintains flexibility while preserving quality
+- Percentage-based scoring with detailed feedback
+- **Benefits**: Customizable agent combinations, consistent quality assessment
 
 See [token_optimization_plan.md](token_optimization_plan.md) for detailed optimization strategies.
 
