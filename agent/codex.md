@@ -1,7 +1,7 @@
 ---
 description: General coding and planning agent
 mode: subagent
-model: zai-coding-plan/glm-4.6
+model: cliproxy/gpt-5-codex
 tools:
   write: true
   edit: true
