@@ -1,12 +1,10 @@
-# OpenCode Agent Orchestration Workflow
+# OpenCode Agent Orchestration Framework
 
-This document outlines the complete workflow for using OpenCode's agent orchestration system to develop features through a structured process.
-
-> **🚀 Token Optimized**: This workflow has been optimized to reduce token usage by 60-75% while maintaining quality.
+A structured framework for developing software features through coordinated agent collaboration, architectural analysis, and systematic implementation.
 
 ## Overview
 
-OpenCode supports two workflow types:
+OpenCode provides two workflow types for different development needs:
 
 ### Simple Workflow (Tasks)
 1. **Task Creation** (`/auto_task`) - Create structured task files from discussions
@@ -58,8 +56,6 @@ Creates: `./.task/0030-user-authentication-system.md`
 ### Purpose
 Generates comprehensive development plans with architectural analysis and implementation details.
 
-> **⚡ Token Optimized**: Conditional research, inline context passing, and unified reviews reduce token usage by ~60%.
-
 ### Usage
 ```
 /auto_plan ./.task/[filename].md @architect @sonnet
@@ -76,19 +72,14 @@ Generates comprehensive development plans with architectural analysis and implem
   - Extract feature architecture summary if exists (max 400 tokens)
   - Prepare inline context for all subsequent phases
 - **Reliability**: Clear error handling and termination conditions
-- **Benefit**: Eliminates redundant file reads (40% token savings)
 
 #### Phase 1: Architectural Analysis
 - **Agent**: `architect`
 - **Retry Limit**: 3 attempts
 - **Input**: Inline context + task file reference
 - **Output**: `./.plan/arch_[basename].md`
-- **Token Optimizations**:
-  - ✅ **Conditional Research**: Skips research if tech already specified or pattern is common
-  - ✅ **Reuses Feature Architecture**: No re-research of parent feature decisions
-  - ✅ **Inline Context**: Receives summarized context instead of reading full files
 - **Activities**:
-  - Targeted web research (only for unknowns)
+  - Targeted web research (when needed)
   - Task-specific architecture patterns
   - Integration approach if dependencies exist
 - **Reliability**: Automatic retry with clear failure handling
@@ -98,8 +89,6 @@ Generates comprehensive development plans with architectural analysis and implem
 - **Retry Limit**: 3 attempts
 - **Input**: Inline context + architectural analysis
 - **Output**: `./.plan/[filename].md`
-- **Token Optimizations**:
-  - ✅ **Inline Context**: No re-reading of task/architecture files
 - **Activities**:
   - Component details and data structures
   - API design following architectural patterns
@@ -144,14 +133,7 @@ Generates comprehensive development plans with architectural analysis and implem
 - `./.plan/arch_[filename].md` - Architectural analysis
 - `./.plan/[filename].md` - Implementation plan
 
-### Token Savings Summary
-- **Phase 0**: Inline context reduces redundant reads by ~40%
-- **Phase 1**: Conditional research reduces unnecessary research by ~50-70%
-- **Phase 2**: Inline context eliminates file re-reading by ~40%
-- **Phase 3**: Dynamic agent selection with focused review
-- **Overall**: ~60% token reduction per task
-
-### Reliability Improvements 🛡️
+### Reliability Features 🛡️
 - **Retry Limits**: 3 attempts per phase with clear failure handling
 - **Linear Flow**: Predictable Phase 0→1→2→3→4→5 progression
 - **No Infinite Loops**: Eliminated "repeat till file exists" patterns
@@ -168,8 +150,6 @@ Generates comprehensive development plans with architectural analysis and implem
 ### Purpose
 Executes the development plan using coordinated agents with quality validation.
 
-> **⚡ Token Optimized**: Inline context passing and incremental diff tracking reduce token usage by ~50%.
-
 ### Usage
 ```
 /orch ./.task/[filename].md ./.plan/[filename].md grok sonnet
@@ -183,12 +163,10 @@ Executes the development plan using coordinated agents with quality validation.
   - Read and summarize task file (max 300 tokens)
   - Read and summarize plan file (max 400 tokens)
   - Prepare inline context for all phases
-- **Benefit**: Eliminates redundant file reads (50% token savings)
 
 #### Phase 1: Plan Execution
 - **Agent**: First specified agent (`grok`)
 - **Input**: Inline context (task + plan summary)
-- **Token Optimization**: Receives 500-token summary instead of 2500-token full files
 - **Activities**:
   - Implement exactly as specified in plan summary
   - Track modified files for incremental review
@@ -198,7 +176,6 @@ Executes the development plan using coordinated agents with quality validation.
 #### Phase 2: Implementation Review
 - **Agent**: Second specified agent (`sonnet`)
 - **Input**: Inline context + git diff of modified files only
-- **Token Optimization**: Only diffs modified files, not entire codebase
 - **Evaluation Criteria**:
   - Plan compliance (how many items implemented)
   - Approach adherence (follows plan's methodology)
@@ -214,7 +191,6 @@ Executes the development plan using coordinated agents with quality validation.
 
 #### Phase 3: Iterative Improvement (if needed)
 - **Trigger**: Score < 90%
-- **Token Optimization**: Uses inline context, only reviews newly changed files
 - **Process**: 
   1. Extract specific issues from review
   2. First agent fixes only identified issues (with inline context)
@@ -225,13 +201,6 @@ Executes the development plan using coordinated agents with quality validation.
 #### Phase 4: Completion
 - **Output**: Final summary with compliance score and implementation details
 - **No commits**: User decides when to commit changes
-
-### Token Savings Summary
-- **Phase 0**: Context extracted once, passed inline (~50% reduction)
-- **Phase 1**: 500-token summary vs 2500-token full files (80% reduction)
-- **Phase 2**: Incremental diff of modified files only (30-50% reduction)
-- **Phase 3**: Inline context + incremental review per iteration (50% reduction)
-- **Overall**: ~50% token reduction per execution
 
 ### Example
 ```
@@ -294,9 +263,8 @@ Executes the development plan using coordinated agents with quality validation.
 4. **Iterative Improvement**: Automatic refinement until 90%+ quality achieved
 5. **Traceability**: Clear documentation trail from task to implementation
 6. **Separation of Concerns**: Architecture, planning, and implementation are handled separately
-7. **Token Efficiency**: 60-75% token reduction through smart optimizations 🆕
-8. **Reliability**: Retry limits, error handling, and no infinite loops 🛡️
-9. **Flexibility**: Dynamic agent selection with customizable combinations
+7. **Reliability**: Retry limits, error handling, and no infinite loops 🛡️
+8. **Flexibility**: Dynamic agent selection with customizable combinations
 
 ## Best Practices
 
@@ -309,81 +277,28 @@ Executes the development plan using coordinated agents with quality validation.
 7. **Error Handling**: Monitor retry counts and check for graceful failure handling
 8. **Quality Tracking**: Review percentage breakdowns to understand specific improvement areas
 
-## Token Optimization Features 🚀
-
-This workflow has been optimized to reduce token usage by **60-75%** while maintaining quality:
-
-### 1. Conditional Research
-- Architects skip research when tech is already specified
-- No research for common patterns (REST API, JWT, CRUD, etc.)
-- Focus only on novel tech or complex architectural decisions
-- **Savings**: 50-70% reduction in research tokens
-
-### 2. Conditional Integration Analysis
-- Integration analysis only when dependencies exist
-- Early-phase tasks skip integration entirely
-- **Savings**: ~30% tokens for independent tasks
-
-### 3. Inline Context Passing
-- Context extracted once in Phase 0
-- All agents receive inline summaries
-- Eliminates redundant file reads (6+ reads → 1 read)
-- **Savings**: ~40% reduction in context loading
-
-### 4. Architecture File Restructuring
-- Essential architecture (`arch_{id}.md`) - max 1500 tokens
-- Optional research file (`arch_{id}_research.md`) - detailed analysis
-- Agents read only what they need
-- **Savings**: ~35% reduction in architecture reads
-
-### 5. Dynamic Agent Selection
-- User-specified agents for planning and review phases
-- Maintains flexibility while preserving quality
-- Percentage-based scoring with detailed feedback
-- **Benefits**: Customizable agent combinations, consistent quality assessment
-
-See [token_optimization_plan.md](token_optimization_plan.md) for detailed optimization strategies.
-
 ## File Structure
 
 ```
 project/
 ├── .feature/                      # Feature workflow
 │   ├── {id}-{title}.md           # Feature specifications
-│   ├── arch_{id}.md              # Essential architecture (1500 tokens max) 🆕
-│   ├── arch_{id}_research.md     # Detailed research (optional) 🆕
+│   ├── arch_{id}.md              # Essential architecture
+│   ├── arch_{id}_research.md     # Detailed research (optional)
 │   └── {id}-decomposition.md     # Task breakdown
 ├── .task/
 │   └── {id}-{title}.md           # Individual tasks
 ├── .plan/
 │   ├── arch_{id}.md              # Task-specific architecture
 │   └── {id}.md                   # Implementation plans
-├── .cache/                        # Optimization support 🆕
+├── .cache/                        # Support files
 │   └── arch_migration.md         # Migration guide
-├── templates/                     # Architecture templates 🆕
+├── templates/                     # Architecture templates
 │   ├── arch_essential.md         # Essential arch template
 │   └── arch_research.md          # Research template
 └── [your code files]             # Implementation results
 ```
 
-## Performance Metrics
-
-### Token Usage Comparison (4-Task Feature)
-
-**Before Optimization:**
-- Feature Creation: ~5,200 tokens
-- Feature Decomposition: ~5,500 tokens
-- Task Planning (×4): ~34,000 tokens
-- **Total**: ~44,700 tokens
-
-**After Optimization:**
-- Feature Creation: ~3,200 tokens (-38%)
-- Feature Decomposition: ~3,500 tokens (-36%)
-- Task Planning (×4): ~13,600 tokens (-60%)
-- **Total**: ~20,300 tokens
-
-**Savings: ~24,400 tokens per feature (55% reduction)**
-
 ---
 
-This workflow ensures systematic, high-quality feature development through coordinated agent collaboration while maintaining architectural integrity and code quality standards—now with significantly reduced token usage.
+This framework ensures systematic, high-quality feature development through coordinated agent collaboration while maintaining architectural integrity and code quality standards.
