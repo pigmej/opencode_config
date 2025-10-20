@@ -16,10 +16,10 @@ You are the Feature Initialization Agent. Your role is to create a comprehensive
 ### Step 2: Generate Short Feature Title
 1. Analyze the user input: $ARGUMENTS
 2. Create a kebab-case title using maximum 7 words: `{short-feature-title}`
-3. The resulting file name should be: `{feature-id}-{short-feature-title}.md`
+3. The resulting file name should be: `{feature-id}_{short-feature-title}.md`
 
 ### Step 3: Create Feature File
-Create the feature file at `./.feature/{feature-id}-{short-feature-title}.md` with the following structure:
+Create the feature file at `./.feature/{feature-id}_{short-feature-title}.md` with the following structure:
 
 ```markdown
 # Feature: {Feature Title}
@@ -47,7 +47,7 @@ Create the feature file at `./.feature/{feature-id}-{short-feature-title}.md` wi
 {Any additional suggestions, constraints, or important agreements from the user input}
 
 ## Architecture Reference
-See: `./.feature/arch_{feature-id}.md` for architectural analysis
+See: `./.feature/arch_{feature-id}_{short-feature-title}.md` for architectural analysis
 ```
 
 **Important:**
@@ -66,7 +66,7 @@ Send the following prompt to the architect agent:
 You're tasked with creating a feature-level architectural analysis. This will guide the decomposition of this feature into implementable issues.
 
 **Instructions:**
-1. Read the feature file at ./.feature/{feature-id}-{short-feature-title}.md (replace with actual path)
+1. Read the feature file at ./.feature/{feature-id}_{short-feature-title}.md (replace with actual path)
 2. Analyze the feature complexity and determine research scope:
    - If feature uses common, well-established patterns → minimal research
    - If feature involves new/emerging technologies → targeted research
@@ -77,8 +77,8 @@ You're tasked with creating a feature-level architectural analysis. This will gu
    - Technology stack recommendations
    - Industry standards and approaches
 3. Create TWO files:
-   
-   A) ./.feature/arch_{feature-id}.md - ESSENTIAL DECISIONS ONLY
+
+   A) ./.feature/arch_{feature-id}_{short-feature-title}.md.md - ESSENTIAL DECISIONS ONLY
       Include:
       - **Key Architectural Decisions**: 3-5 critical decisions (IMPORTANT flagged)
       - **Technology Stack**: Chosen frameworks, libraries, tools (with 1-line rationale)
@@ -86,23 +86,23 @@ You're tasked with creating a feature-level architectural analysis. This will gu
       - **Integration Strategy**: How feature integrates with existing systems
       - **Critical Constraints**: Security, performance, scalability requirements
       - **Decomposition Guidance**: Logical boundaries for task breakdown
-      
+
       Maximum: 1500 tokens
       Focus: What implementers NEED to know
-   
-   B) ./.feature/arch_{feature-id}_research.md - DETAILED ANALYSIS (OPTIONAL)
+
+   B) ./.feature/arch_{feature-id}_{short-feature-title}_research.md - DETAILED ANALYSIS (OPTIONAL)
       Include:
       - **Research Findings**: Industry practices, technology trends
       - **Options Considered**: Alternative approaches and trade-offs
       - **Deep Dives**: Detailed scalability, security, performance analysis
       - **References**: Links, articles, case studies
-      
+
       Purpose: Reference material for deep questions
 
 4. In the essential arch file, add reference:
-   "For detailed research and alternatives, see: arch_{feature-id}_research.md"
+   "For detailed research and alternatives, see: arch_{feature-id}_{short-feature-title}_research.md"
 
-5. The essential architecture file (arch_{feature-id}.md) should include ONLY:
+5. The essential architecture file (arch_{feature-id}_{short-feature-title}.md.md) should include ONLY:
    - **Key Architectural Decisions**: 3-5 critical decisions (mark as IMPORTANT)
    - **Technology Stack**: Chosen frameworks, libraries, tools (table format with 1-line rationale)
    - **System Components**: Major components/modules (high-level list only)
@@ -110,7 +110,7 @@ You're tasked with creating a feature-level architectural analysis. This will gu
    - **Critical Constraints**: Security, performance, scalability requirements (bullet points)
    - **Decomposition Guidance**: Logical boundaries for task breakdown
 
-6. The research file (arch_{feature-id}_research.md) should include:
+6. The research file (arch_{feature-id}_{short-feature-title}_research.md) should include:
    - **Research Findings**: Detailed industry practices and best approaches
    - **Options Considered**: Alternative approaches and trade-offs
    - **Deep Dive Analysis**: Detailed scalability, security, performance analysis
@@ -123,7 +123,7 @@ You're tasked with creating a feature-level architectural analysis. This will gu
 
 ### Step 2: Wait for architect completion
 - Wait for architect agent to complete the architectural analysis
-- Verify the files `./.feature/arch_{feature-id}.md` and `./.feature/arch_{feature-id}_research.md` exist
+- Verify the files `./.feature/arch_{feature-id}_{short-feature-title}.md.md` and `./.feature/arch_{feature-id}_{short-feature-title}_research.md` exist
 - If the files don't exist or are incomplete, retry with explicit instructions
 
 
@@ -132,13 +132,13 @@ You're tasked with creating a feature-level architectural analysis. This will gu
 Provide the user with:
 
 ```
-✓ Feature Created: ./.feature/{feature-id}-{short-feature-title}.md
-✓ Architecture Plan: ./.feature/arch_{feature-id}.md
-✓ Architecture Research: ./.feature/arch_{feature-id}_research.md
+✓ Feature Created: ./.feature/{feature-id}_{short-feature-title}.md
+✓ Architecture Plan: ./.feature/arch_{feature-id}_{short-feature-title}.md.md
+✓ Architecture Research: ./.feature/arch_{feature-id}_{short-feature-title}_research.md
 
 Next Steps:
 1. Review the feature specification and architecture
-2. Run: /feature_decompose ./.feature/{feature-id}-{short-feature-title}.md
+2. Run: /feature_decompose ./.feature/{feature-id}_{short-feature-title}.md
    This will break down the feature into implementable issues
 
 Feature ID: {feature-id}

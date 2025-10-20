@@ -11,7 +11,7 @@ You are the Feature Decomposition Agent. Your role is to break down a complex fe
 **Parse the user input and extract:**
 - Feature file path (should be in `./.feature/` directory) → `$FEATURE_FILE_PATH`
 - Extract feature ID from filename (e.g., `100-user-auth.md` → feature_id = `100`)
-- Feature architecture file: `./.feature/arch_{feature-id}.md` → `$FEATURE_ARCH_PATH`
+- Feature architecture file: `./.feature/arch_{feature-id}_{feature-short-name}.md` → `$FEATURE_ARCH_PATH`
 
 **Validation:**
 - If feature file doesn't exist: Terminate with error "Feature file not found at specified path"
@@ -29,7 +29,7 @@ You're tasked with analyzing a feature and breaking it down into implementable t
 **Instructions:**
 1. Read the feature file at $FEATURE_FILE_PATH (replace with actual path)
 2. Read the feature architecture at $FEATURE_ARCH_PATH (replace with actual path)
-   (This contains essential decisions. If you need research details, read arch_{feature-id}_research.md)
+   (This contains essential decisions. If you need research details, read arch_{feature-id}_{feature-short-name}_research.md)
 3. IMPORTANT: The feature architecture already contains research findings.
    DO NOT re-research the same topics. Only search for:
    - Decomposition strategies specific to this feature type
@@ -113,11 +113,11 @@ For each task in the decomposition plan:
 
 **Task ID:** {feature_id}_{phase}_{sequence}
 **Parent Feature:** {feature-id} - See `./.feature/{feature-file-name}.md`
-**Feature Architecture:** `./.feature/arch_{feature-id}.md`
+**Feature Architecture:** `./.feature/arch_{feature-id}_{feature-short-name}.md`
 **Created:** {current-date}
 **Priority:** {priority from decomposition}
 **Implementation Phase:** {phase from decomposition}
-**Status:** Planned
+
 
 ## Problem Statement
 {problem_statement from decomposition}
@@ -153,7 +153,7 @@ This task is part of a larger feature. Please review the feature architecture be
 ## Architectural Notes
 {architectural_notes from decomposition}
 
-**IMPORTANT:** This task must align with the feature architecture at `./.feature/arch_{feature-id}.md`
+**IMPORTANT:** This task must align with the feature architecture at `./.feature/arch_{feature-id}_{feature-short-name}.md`
 
 ## Implementation Guidance
 When implementing this task:
@@ -172,14 +172,14 @@ When implementing this task:
 
 ## Phase 3: Create Feature Decomposition Summary
 
-Create a summary file at `./.feature/{feature-id}-decomposition.md`:
+Create a summary file at `./.feature/{feature-id}_{feature-short-name}_decomposition.md`:
 
 ```markdown
 # Feature Decomposition Summary
 
 **Feature ID:** {feature-id}
 **Feature File:** `./.feature/{feature-file-name}.md`
-**Architecture:** `./.feature/arch_{feature-id}.md`
+**Architecture:** `./.feature/arch_{feature-id}_{feature-short-name}.md`
 **Decomposed Date:** {current-date}
 **Total Tasks:** {count}
 
@@ -223,7 +223,7 @@ Provide the user with a comprehensive summary:
 ✓ Feature Decomposed Successfully
 
 Feature: {feature-id} - {feature-name}
-Architecture: ./.feature/arch_{feature-id}.md
+Architecture: ./.feature/arch_{feature-id}_{feature-short-name}.md
 
 Tasks Created ({count} total):
 {For each task:}
@@ -231,7 +231,7 @@ Tasks Created ({count} total):
     File: ./.task/{feature_id}_{phase}_{sequence}-{task-title}.md
     Priority: {priority} | Phase: {phase}
 
-Summary: ./.feature/{feature-id}-decomposition.md
+Summary: ./.feature/{feature-id}_{feature-short-name}_decomposition.md
 
 Next Steps:
 1. Review all generated tasks
@@ -241,7 +241,7 @@ Next Steps:
 Implementation Order:
 {Show phase-based implementation order}
 
-All tasks are architecturally aligned with: ./.feature/arch_{feature-id}.md
+All tasks are architecturally aligned with: ./.feature/arch_{feature-id}_{feature-short-name}.md
 ```
 
 ## Error Handling

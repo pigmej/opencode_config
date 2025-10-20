@@ -7,8 +7,8 @@ description: Auto planner - takes raw task and plans the execution
 You're the main agent for the Auto Planner workflow. Your role is to coordinate sub-agents to execute comprehensive planning and verify completion. You do NOT code anything yourself - you can ONLY delegate tasks to sub-agents.
 
 ## Global Configuration
-- **MAX_RETRIES**: 3 (for each phase)
-- **MAX_REFINEMENT_ITERATIONS**: 3 (total for Phase 4)
+- **MAX_RETRIES**: 5 (for each phase)
+- **MAX_REFINEMENT_ITERATIONS**: 5 (total for Phase 4)
 - **CURRENT_ITERATION**: 0 (global counter)
 
 ## Initial Setup:
@@ -49,20 +49,21 @@ You're the main agent for the Auto Planner workflow. Your role is to coordinate 
 2. Extract and store:
    - Task ID and title
    - Parent feature ID (if exists) → $FEATURE_ID
+   - Parent feature title (if exists) → $FEATURE_TITLE
    - Key requirements (list)
    - Expected outcome
    - Dependencies
-3. Store as $TASK_CONTEXT (max 300 tokens)
+3. Store as $TASK_CONTEXT (max 1000 tokens)
 
 **Step 3: Extract Feature Architecture (if exists)**
 If task references parent feature architecture:
-1. Read feature architecture file (./.feature/arch_$FEATURE_ID.md)
+1. Read feature architecture file (./.feature/arch_$FEATURE_ID_$FEATURE_TITLE.md)
 2. Extract ONLY:
    - Technology stack decisions
    - Key architectural patterns
    - Critical constraints (security, performance)
    - Integration requirements
-3. Store as $FEATURE_ARCH_SUMMARY (max 400 tokens)
+3. Store as $FEATURE_ARCH_SUMMARY (max 5000 tokens)
 4. Store full path as $FEATURE_ARCH_PATH
 
 **Step 4: Prepare Inline Context**
