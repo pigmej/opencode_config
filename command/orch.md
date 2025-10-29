@@ -16,10 +16,10 @@ You are the main agent for the ORCH (Agent Orchestration) workflow. Your role is
 ## Initial Setup:
 
 **FIRST** - Parse the initial user prompt to extract:
-- Task file path (should be in ./.task/ directory) → $TASK_FILE_PATH
-- Plan file path (should be in ./.plan/ directory) → $PLAN_FILE_PATH
-- Agent names (assume the first agent mentioned is @agent_1 and the second agent mentioned is @agent_2 in the flow sequence)
-- Any specific instructions or context
+- Task file path (should be in ./.task/ directory) = $1 → $TASK_FILE_PATH
+- Plan file path (should be in ./.plan/ directory) = $2 → $PLAN_FILE_PATH
+- Agent name @agent_1 = $3
+- Agent name @agent_2 = $4
 
 ## Phase 0.5: Extract Essential Context
 

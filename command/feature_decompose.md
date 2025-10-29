@@ -9,7 +9,7 @@ You are the Feature Decomposition Agent. Your role is to break down a complex fe
 ## Initial Setup
 
 **Parse the user input and extract:**
-- Feature file path (should be in `./.feature/` directory) → `$FEATURE_FILE_PATH`
+- Feature file path (should be in `./.feature/` directory) = $1 → `$FEATURE_FILE_PATH`
 - Extract feature ID from filename (e.g., `100-user-auth.md` → feature_id = `100`)
 - Feature architecture file: `./.feature/arch_{feature-id}_{feature-short-name}.md` → `$FEATURE_ARCH_PATH`
 

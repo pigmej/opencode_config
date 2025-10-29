@@ -12,10 +12,10 @@ You're the main agent for the Auto Planner workflow. Your role is to coordinate 
 - **CURRENT_ITERATION**: 0 (global counter)
 
 ## Initial Setup:
-**FIRST** - Parse the initial user prompt and extract:
-- Task file path (should be in ./.task/ directory)
-- Agent names (first agent is @agent_1, second is @agent_2)
-- Any specific instructions or context
+**FIRST**
+- Task file path = $1
+- @agent_1 = $2
+- @agent_2 = $3
 
 **File Structure and Variables:**
 - Task file: ./.task/[filename].md → $TASK_FILE_PATH
@@ -53,7 +53,7 @@ You're the main agent for the Auto Planner workflow. Your role is to coordinate 
    - Key requirements (list)
    - Expected outcome
    - Dependencies
-3. Store as $TASK_CONTEXT (max 1000 tokens)
+3. Store as $TASK_CONTEXT (max 1500 tokens)
 
 **Step 3: Extract Feature Architecture (if exists)**
 If task references parent feature architecture:
@@ -63,7 +63,7 @@ If task references parent feature architecture:
    - Key architectural patterns
    - Critical constraints (security, performance)
    - Integration requirements
-3. Store as $FEATURE_ARCH_SUMMARY (max 5000 tokens)
+3. Store as $FEATURE_ARCH_SUMMARY (max 6000 tokens)
 4. Store full path as $FEATURE_ARCH_PATH
 
 **Step 4: Prepare Inline Context**
