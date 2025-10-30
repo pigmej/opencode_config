@@ -1,237 +1,115 @@
 # OpenCode Agent Orchestration Framework
 
-A structured framework for developing software features through coordinated agent collaboration, architectural analysis, and systematic implementation.
+A developer-focused framework for building software features through coordinated AI agent collaboration.
 
-## Overview
+## Quick Start
 
-OpenCode provides two workflow types for different development needs:
+### Prerequisites
+- Git repository initialized
+- OpenCode CLI installed
 
-### Simple Workflow (Tasks)
-1. **Task Creation** (`/auto_task`) - Create structured task files from discussions
-2. **Planning** (`/auto_plan`) - Generate comprehensive development plans with architectural analysis
-3. **Orchestration** (`/orch`) - Execute the plan using coordinated agents
+### Basic Usage
+```bash
+# Create a task from your current discussion
+/auto_task "Add OAuth2 support to our authentication service"
 
-### Feature Workflow (Complex Projects)
-1. **Feature Creation** (`/auto_feature`) - Create feature specification and architecture
-2. **Feature Decomposition** (`/feature_decompose`) - Break feature into implementable tasks
-3. **Task Planning** (`/auto_plan`) - Create detailed plans for each task
-4. **Orchestration** (`/orch`) - Execute each task plan
+# Plan the implementation with architectural analysis
+/auto_plan ./.task/0030-add-oauth2-support.md @architect @sonnet
 
-See [FEATURE_WORKFLOW.md](FEATURE_WORKFLOW.md) for detailed feature workflow documentation.
-
-## Stage 1: Task Creation (`/auto_task`)
-
-### Purpose
-Creates a structured task file based on discussion context, transforming conversation into actionable development requirements.
-
-### Usage
-```
-/auto_task [additional suggestions and ideas]
+# Execute the plan with code generation
+/orch ./.task/0030-add-oauth2-support.md ./.plan/0030-add-oauth2-support.md grok sonnet
 ```
 
-### Process
-1. **Task ID Generation**: Finds the highest numbered file in `./.task/` directory and adds 10
-2. **File Naming**: Creates `{new-task-id}-{short-task-title}.md` using kebab-case (max 7 words)
-3. **Content Structure**:
-   - User feedback from discussion
-   - Problem Statement
-   - Requirements
-   - Expected Outcome
-   - Additional suggestions (from arguments)
-   - Other important agreements (architectural decisions, direction, project context)
+## Core Commands
 
-### Output
-- Task file in `./.task/` directory
-- Clear file path confirmation
+### `/auto_task` - Task Creation
+Transforms conversation into structured development tasks.
 
-### Example
-After discussing authentication improvements:
-```
-/auto_task "Consider OAuth2 integration and multi-factor authentication"
-```
-Creates: `./.task/0030-user-authentication-system.md`
-
-## Stage 2: Planning (`/auto_plan`)
-
-### Purpose
-Generates comprehensive development plans with architectural analysis and implementation details.
-
-### Usage
-```
-/auto_plan ./.task/[filename].md @architect @sonnet
+**Usage:**
+```bash
+/auto_task [task description]
 ```
 
-### Process Flow
+**What it does:**
+- Creates numbered task files in `./.task/` directory
+- Generates kebab-case filenames (max 7 words)
+- Structures requirements and expected outcomes
+- **Uses the current conversation context** as input when called after discussing requirements
 
-#### Phase 0: Setup & Context Extraction
-- **Purpose**: Validate input and extract context for all agents
-- **Activities**:
-  - Validate task file exists
-  - Extract filename components and set file paths
-  - Read and summarize task file (max 300 tokens)
-  - Extract feature architecture summary if exists (max 400 tokens)
-  - Prepare inline context for all subsequent phases
-- **Reliability**: Clear error handling and termination conditions
+**Example:**
+```bash
+# After discussing authentication requirements:
+/auto_task "Implement JWT token refresh mechanism with Redis caching"
+# Creates: ./.task/0040-implement-jwt-token-refresh.md
+```
 
-#### Phase 1: Architectural Analysis
-- **Agent**: `architect`
-- **Retry Limit**: 3 attempts
-- **Input**: Inline context + task file reference
-- **Output**: `./.plan/arch_[basename].md`
-- **Activities**:
-  - Targeted web research (when needed)
-  - Task-specific architecture patterns
-  - Integration approach if dependencies exist
-- **Reliability**: Automatic retry with clear failure handling
+### `/auto_feature` - Feature Specification
+Creates comprehensive feature specifications with architectural planning.
 
-#### Phase 2: Implementation Planning
-- **Agent**: First specified agent (`@agent_1`)
-- **Retry Limit**: 3 attempts
-- **Input**: Inline context + architectural analysis
-- **Output**: `./.plan/[filename].md`
-- **Activities**:
-  - Component details and data structures
-  - API design following architectural patterns
-  - Integration strategy with prior tasks
-  - Testing strategy
-  - Development phases
-- **Reliability**: Automatic retry with clear failure handling
+**Usage:**
+```bash
+/auto_feature [feature description]
+```
 
-#### Phase 3: Review
-- **Agent**: Second specified agent (`@agent_2`)
-- **Scoring System**: 
-  - Implementation Feasibility (40%)
-  - Architectural Alignment (30%)
-  - Completeness (20%)
-  - Integration Quality (10%)
-- **Decision Logic**: 90%+ = PASS, <90% = NEEDS REFINEMENT
-- **Activities**:
-  - Read architectural analysis and implementation plan
-  - Provide detailed percentage-based feedback
-  - Generate specific improvement recommendations
-- **Output**: Overall score + detailed breakdown + feedback
+**What it does:**
+- Creates feature files in `./.feature/` directory
+- Generates feature architecture documentation
+- **Uses the current conversation context** as input when called after architectural discussions
+- Breaks down complex features into manageable components
 
-#### Phase 4: Refinement Loop
-- **Trigger**: Overall score < 90%
-- **Maximum Iterations**: 3 total
-- **Process**: 
-  - Categorize issues (architectural vs implementation)
-  - Spawn appropriate agents (@agent_2 for architectural, @agent_1 for implementation)
-  - Use actual review feedback (not placeholders)
-  - Re-evaluate until 90%+ achieved or max iterations reached
-- **Reliability**: Clear iteration limits and graceful completion
+**Example:**
+```bash
+# After discussing system architecture:
+/auto_feature "Implement user authentication system with JWT and OAuth2"
+# Creates: ./.feature/100-user-authentication-system.md
+```
 
-#### Phase 5: Final Completion
-- **Trigger**: 90%+ score OR max refinement iterations reached
-- **Output**: Comprehensive summary with quality metrics
-- **Quality Metrics**: 
-  - Final overall score with detailed breakdown
-  - Iteration counts and improvement tracking
-  - File paths and architectural decisions summary
+### `/auto_plan` - Planning & Architecture
+Generates comprehensive development plans with architectural analysis.
 
-### Output Files
+**Usage:**
+```bash
+/auto_plan ./.task/[filename].md @architect @agent_type
+```
+
+**File outputs:**
 - `./.plan/arch_[filename].md` - Architectural analysis
 - `./.plan/[filename].md` - Implementation plan
 
-### Reliability Features 🛡️
-- **Retry Limits**: 3 attempts per phase with clear failure handling
-- **Linear Flow**: Predictable Phase 0→1→2→3→4→5 progression
-- **No Infinite Loops**: Eliminated "repeat till file exists" patterns
-- **Proper Variable Substitution**: Real feedback content instead of placeholders
-- **Graceful Degradation**: Best effort completion when limits reached
-
-### Example
-```
-/auto_plan ./.task/110-jwt-token-service.md @architect @sonnet
-```
-
-## Stage 3: Orchestration (`/orch`)
-
-### Purpose
-Executes the development plan using coordinated agents with quality validation.
-
-### Usage
-```
-/orch ./.task/[filename].md ./.plan/[filename].md grok sonnet
-```
-
-### Process Flow
-
-#### Phase 0: Setup & Context Extraction
-- **Purpose**: Validate input and extract context for all agents
-- **Activities**:
-  - Read and summarize task file (max 300 tokens)
-  - Read and summarize plan file (max 400 tokens)
-  - Prepare inline context for all phases
-
-#### Phase 1: Plan Execution
-- **Agent**: First specified agent (`grok`)
-- **Input**: Inline context (task + plan summary)
-- **Activities**:
-  - Implement exactly as specified in plan summary
-  - Track modified files for incremental review
-  - No deviations or extra features
-  - No commits (code changes only)
-
-#### Phase 2: Implementation Review
-- **Agent**: Second specified agent (`sonnet`)
-- **Input**: Inline context + git diff of modified files only
-- **Evaluation Criteria**:
-  - Plan compliance (how many items implemented)
-  - Approach adherence (follows plan's methodology)
-  - Code quality and best practices
-  - Security and performance considerations
-  - Test coverage (if applicable)
-
-**Scoring System**:
-- 90-100%: Excellent execution, minor/no deviations
-- 70-89%: Good execution with some issues
-- 50-69%: Significant deviations or incomplete work
-- <50%: Major failure to follow plan
-
-#### Phase 3: Iterative Improvement (if needed)
-- **Trigger**: Score < 90%
-- **Process**: 
-  1. Extract specific issues from review
-  2. First agent fixes only identified issues (with inline context)
-  3. Update modified files list
-  4. Second agent re-reviews (only changed files)
-  5. Repeat until 90%+ compliance
-
-#### Phase 4: Completion
-- **Output**: Final summary with compliance score and implementation details
-- **No commits**: User decides when to commit changes
-
-### Example
-```
-/orch ./.task/0030-user-authentication-system.md ./.plan/0030-user-authentication-system.md grok sonnet
-```
-
-## Complete Workflow Example
-
-### Simple Task Workflow
+**Example:**
 ```bash
-# 1. Create task from discussion
-/auto_task "Add OAuth2 support and consider security best practices"
-# Output: ./.task/0030-user-authentication-system.md
-
-# 2. Generate plan with architecture
-/auto_plan ./.task/0030-user-authentication-system.md @architect @sonnet
-# Output: 
-# - ./.plan/arch_0030-user-authentication-system.md
-# - ./.plan/0030-user-authentication-system.md
-
-# 3. Execute plan
-/orch ./.task/0030-user-authentication-system.md ./.plan/0030-user-authentication-system.md grok sonnet
-# Output: Implemented code changes (not committed)
+/auto_plan ./.task/0040-implement-jwt-token-refresh.md @architect @sonnet
 ```
+
+### `/orch` - Code Execution
+Executes development plans with quality validation.
+
+**Usage:**
+```bash
+/orch ./.task/[filename].md ./.plan/[filename].md agent_1 agent_2
+```
+
+**Process:**
+1. First agent implements the plan
+2. Second agent reviews implementation quality
+3. Iterative improvement until 90%+ compliance
+4. Tracks modified files without automatic commits
+
+**Example:**
+```bash
+/orch ./.task/0040-implement-jwt-token-refresh.md ./.plan/0040-implement-jwt-token-refresh.md grok sonnet
+```
+
+## Advanced Workflows
 
 ### Feature Workflow (Complex Projects)
-```bash
-# 1. Create feature with architecture
-/auto_feature Implement user authentication system with JWT and OAuth2
+For multi-task features requiring architectural coordination.
 
-# 2. Decompose into tasks
+```bash
+# 1. Create feature specification
+/auto_feature "Implement user authentication system with JWT and OAuth2"
+
+# 2. Decompose into individual tasks
 /feature_decompose ./.feature/100-user-authentication-system.md
 
 # 3. Plan each task
@@ -242,18 +120,131 @@ Executes the development plan using coordinated agents with quality validation.
 /orch ./.task/100_1_10-jwt-service.md ./.plan/100_1_10-jwt-service.md grok sonnet
 ```
 
-## Agent Recommendations
+### Simple Task Workflow
+For straightforward development tasks.
+
+```bash
+# 1. Create task
+/auto_task "Add input validation to user registration endpoint"
+
+# 2. Generate plan
+/auto_plan ./.task/0050-add-input-validation.md @architect @sonnet
+
+# 3. Execute implementation
+/orch ./.task/0050-add-input-validation.md ./.plan/0050-add-input-validation.md grok sonnet
+```
+
+## Agent Selection Guide
 
 ### Primary Development Agents
-- **grok**: General coding and planning
-- **sonnet**: General coding and planning  
-- **supernova**: General coding and planning
-- **qwen3**: General coding and planning
+- **grok**: General coding and planning - good for most implementation tasks
+- **sonnet**: General coding and planning - excels at API design and testing strategies
+- **supernova**: General coding and planning - strong with complex algorithms
+- **qwen3**: General coding and planning - good for documentation and examples
 
 ### Specialized Agents
-- **architect**: Architectural guidance and design decisions
-- **security-auditor**: Security audits and vulnerability identification
-- **review**: Code quality and best practices review
+- **architect**: Architectural guidance, design patterns, system integration
+- **security-auditor**: Security reviews, vulnerability identification
+- **review**: Code quality, best practices, performance optimization
+
+### Recommended Combinations
+- **Planning**: `@architect @sonnet` (architecture + implementation)
+- **Execution**: `grok sonnet` (implementation + review)
+- **Security-Critical**: `@architect @security-auditor` (architecture + security)
+
+## Quality Assurance
+
+### Planning Quality (90%+ threshold)
+- **Implementation Feasibility** (40%)
+- **Architectural Alignment** (30%)
+- **Completeness** (20%)
+- **Integration Quality** (10%)
+
+### Execution Quality (90%+ threshold)
+- **Plan compliance** - follows specified implementation
+- **Approach adherence** - uses planned methodology
+- **Code quality** - follows best practices
+- **Security considerations** - addresses vulnerabilities
+- **Test coverage** - includes appropriate tests
+
+## File Structure
+
+```
+project/
+├── .task/                       # Individual tasks
+│   └── {id}-{title}.md         # Task specifications
+├── .plan/                       # Development plans
+│   ├── arch_{id}.md            # Architecture analysis
+│   └── {id}.md                 # Implementation plans
+├── .feature/                    # Feature specifications (complex projects)
+│   ├── {id}-{title}.md         # Feature requirements
+│   ├── arch_{id}.md            # Feature architecture
+│   └── {id}-decomposition.md   # Task breakdown
+└── .cache/                      # Support files
+    └── arch_migration.md       # Migration documentation
+```
+
+## Best Practices
+
+### Task Creation
+- Be specific about requirements and constraints
+- Include architectural considerations when known
+- Use clear, descriptive task titles
+- **Discuss requirements first**, then call `/auto_task` to capture the conversation context
+
+### Feature Creation
+- **Discuss architecture and scope first**, then call `/auto_feature` to capture the conversation context
+- Include integration points and dependencies
+- Define clear success criteria
+
+### Agent Selection
+- Use different agents for planning and review to get diverse perspectives
+- Match agent specialties to task requirements
+- Consider security-auditor for authentication, data handling, or network code
+
+### Quality Standards
+- The 90% score threshold ensures high-quality deliverables
+- Review percentage breakdowns to understand specific improvement areas
+- Monitor retry counts for potential issues
+
+### Development Workflow
+- No premature commits - review all changes before committing
+- Use feature workflow for complex projects with 3+ related tasks
+- Track modified files for incremental review and testing
+
+## Error Handling & Reliability
+
+- **Retry Limits**: 3 attempts per phase with clear failure handling
+- **Linear Flow**: Predictable progression through phases
+- **No Infinite Loops**: Eliminated problematic "repeat till file exists" patterns
+- **Graceful Degradation**: Best effort completion when limits reached
+
+## Examples in Practice
+
+### Adding Database Migration
+```bash
+/auto_task "Create database migration for user profile schema changes"
+/auto_plan ./.task/0060-create-user-profile-migration.md @architect @sonnet
+/orch ./.task/0060-create-user-profile-migration.md ./.plan/0060-create-user-profile-migration.md grok sonnet
+```
+
+### Implementing API Rate Limiting
+```bash
+/auto_task "Add rate limiting to public API endpoints using Redis"
+/auto_plan ./.task/0070-add-api-rate-limiting.md @architect @sonnet
+/orch ./.task/0070-add-api-rate-limiting.md ./.plan/0070-add-api-rate-limiting.md grok sonnet
+```
+
+### Security Audit Integration
+```bash
+/auto_task "Review authentication service for security vulnerabilities"
+/auto_plan ./.task/0080-security-audit-auth-service.md @architect @security-auditor
+/orch ./.task/0080-security-audit-auth-service.md ./.plan/0080-security-audit-auth-service.md grok sonnet
+```
+
+---
+
+This framework provides a structured approach to AI-assisted development with clear separation between planning and execution, ensuring high-quality, architecturally sound software implementation.
 
 ## Key Benefits
 
