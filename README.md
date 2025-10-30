@@ -115,8 +115,8 @@ For multi-task features requiring architectural coordination.
 /feature_decompose ./.feature/100-user-authentication-system.md
 
 # 3. Plan each task
-/auto_plan ./.task/100_1_10-jwt-service.md @architect @sonnet
-/auto_plan ./.task/100_1_20-oauth2-integration.md @architect @sonnet
+/auto_plan ./.task/100_1_10-jwt-service.md @sonnet @glm
+/auto_plan ./.task/100_1_20-oauth2-integration.md @sonnet @glm
 
 # 4. Execute each task
 /orch ./.task/100_1_10-jwt-service.md ./.plan/100_1_10-jwt-service.md grok sonnet
@@ -130,7 +130,7 @@ For straightforward development tasks.
 /auto_task "Add input validation to user registration endpoint"
 
 # 2. Generate plan
-/auto_plan ./.task/0050-add-input-validation.md @architect @sonnet
+/auto_plan ./.task/0050-add-input-validation.md @sonnet @glm
 
 # 3. Execute implementation
 /orch ./.task/0050-add-input-validation.md ./.plan/0050-add-input-validation.md grok sonnet
@@ -150,9 +150,8 @@ For straightforward development tasks.
 - **review**: Code quality, best practices, performance optimization
 
 ### Recommended Combinations
-- **Planning**: `@architect @sonnet` (architecture + implementation)
-- **Execution**: `grok sonnet` (implementation + review)
-- **Security-Critical**: `@architect @security-auditor` (architecture + security)
+- **Planning**: `@glm @sonnet` or `@sonnet @glm`
+- **Execution**: `@glm @sonnet` or `@sonnet @glm`
 
 ## Quality Assurance
 
