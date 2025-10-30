@@ -2,6 +2,8 @@
 
 A structured framework for developing software features through coordinated agent collaboration, architectural analysis, and systematic implementation.
 
+Requires opencode `v0.15.29+` because of positional arguments for across agent compatibility.
+
 ## Overview
 
 OpenCode provides two workflow types for different development needs:
@@ -99,7 +101,7 @@ Generates comprehensive development plans with architectural analysis and implem
 
 #### Phase 3: Review
 - **Agent**: Second specified agent (`@agent_2`)
-- **Scoring System**: 
+- **Scoring System**:
   - Implementation Feasibility (40%)
   - Architectural Alignment (30%)
   - Completeness (20%)
@@ -114,7 +116,7 @@ Generates comprehensive development plans with architectural analysis and implem
 #### Phase 4: Refinement Loop
 - **Trigger**: Overall score < 90%
 - **Maximum Iterations**: 3 total
-- **Process**: 
+- **Process**:
   - Categorize issues (architectural vs implementation)
   - Spawn appropriate agents (@agent_2 for architectural, @agent_1 for implementation)
   - Use actual review feedback (not placeholders)
@@ -124,7 +126,7 @@ Generates comprehensive development plans with architectural analysis and implem
 #### Phase 5: Final Completion
 - **Trigger**: 90%+ score OR max refinement iterations reached
 - **Output**: Comprehensive summary with quality metrics
-- **Quality Metrics**: 
+- **Quality Metrics**:
   - Final overall score with detailed breakdown
   - Iteration counts and improvement tracking
   - File paths and architectural decisions summary
@@ -191,7 +193,7 @@ Executes the development plan using coordinated agents with quality validation.
 
 #### Phase 3: Iterative Improvement (if needed)
 - **Trigger**: Score < 90%
-- **Process**: 
+- **Process**:
   1. Extract specific issues from review
   2. First agent fixes only identified issues (with inline context)
   3. Update modified files list
@@ -217,7 +219,7 @@ Executes the development plan using coordinated agents with quality validation.
 
 # 2. Generate plan with architecture
 /auto_plan ./.task/0030-user-authentication-system.md @architect @sonnet
-# Output: 
+# Output:
 # - ./.plan/arch_0030-user-authentication-system.md
 # - ./.plan/0030-user-authentication-system.md
 
@@ -246,7 +248,7 @@ Executes the development plan using coordinated agents with quality validation.
 
 ### Primary Development Agents
 - **grok**: General coding and planning
-- **sonnet**: General coding and planning  
+- **sonnet**: General coding and planning
 - **supernova**: General coding and planning
 - **qwen3**: General coding and planning
 
