@@ -2,6 +2,8 @@
 
 A developer-focused framework for building software features through coordinated AI agent collaboration.
 
+Requires opencode `v0.15.29+` because of positional arguments for across agent compatibility.
+
 ## Quick Start
 
 ### Prerequisites
@@ -137,10 +139,10 @@ For straightforward development tasks.
 ## Agent Selection Guide
 
 ### Primary Development Agents
-- **grok**: General coding and planning - good for most implementation tasks
-- **sonnet**: General coding and planning - excels at API design and testing strategies
-- **supernova**: General coding and planning - strong with complex algorithms
-- **qwen3**: General coding and planning - good for documentation and examples
+- **grok**: General coding and planning
+- **sonnet**: General coding and planning
+- **supernova**: General coding and planning
+- **qwen3**: General coding and planning
 
 ### Specialized Agents
 - **architect**: Architectural guidance, design patterns, system integration
